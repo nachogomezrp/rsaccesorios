@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>RS Accesorios</title>
+
+  <link rel="icon" type="image/png" href="./assets/img/logo.png" />
+
+  <!-- Google Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="./assets/css/reset.css" />
+  <link rel="stylesheet" href="./assets/css/variables.css" />
+  <link rel="stylesheet" href="./assets/css/styles.css" />
+</head>
+
+<body>
+  <header class="header">
+  <div class="header__top header__top--wide">
+    <div class="brand">
+      <div class="brand__img">
+        <img src="./assets/img/logo.png" alt="RS Accesorios" />
+      </div>
+    </div>
+
+    <div class="searchbar">
+      <input id="q" class="searchbar__input" type="search" placeholder="¿Qué estás buscando?" autocomplete="off" />
+      <button class="searchbar__btn" id="searchBtn" type="button" aria-label="Buscar">🔎</button>
+    </div>
+    
+    <div class="actions">
+      <button id="cartOpenBtn" class="btn btn--primary" type="button">
+        Carrito (<span id="cartCount">0</span>)
+      </button>
+    </div>
+  </div>
+
+  <nav class="nav" aria-label="Navegación">
+    <div class="nav__inner nav__inner--wide">
+      <div class="nav-categories" id="navCategories">
+        <button
+          id="categoriesToggle"
+          class="nav-categories__toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="categoriesMenu"
+        >
+          <span class="nav-categories__icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span>Categorías</span>
+        </button>
+
+        <div id="categoriesMenu" class="nav-categories__menu" hidden>
+          <div id="categoryNav" class="nav-categories__list"></div>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <!-- HERO SLIDER -->
+  <section class="hero">
+    <div class="hero__slider" id="heroSlider">
+
+      <div class="hero__slide hero__slide--active">
+        <img src="./assets/img/hero-espejos.jpg" alt="Espejos para vehículos" class="hero__img">
+        <div class="hero__content container">
+          <h1 class="hero__title">Espejos para tu vehículo</h1>
+          <p class="hero__text">Encontrá espejos compatibles con múltiples modelos.</p>
+        </div>
+      </div>
+
+      <div class="hero__slide">
+        <img src="./assets/img/hero-tazas.jpg" alt="Tazas personalizadas" class="hero__img">
+        <div class="hero__content container">
+          <h1 class="hero__title">Tazas y accesorios</h1>
+          <p class="hero__text">Productos ideales para regalo o uso diario.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <button class="hero__arrow hero__arrow--left" id="heroPrev">‹</button>
+    <button class="hero__arrow hero__arrow--right" id="heroNext">›</button>
+
+    <div class="hero__dots">
+      <span class="hero__dot hero__dot--active"></span>
+      <span class="hero__dot"></span>
+    </div>
+  </section>
+
+<section id="resultsSection" class="container catalog">
+<aside id="catalogSidebar" class="catalog__sidebar" hidden>
+
+  <div class="filters-box">
+
+    <div class="filters-box__header">
+      <h3 class="filters-box__title">Filtros</h3>
+      <button id="clearFiltersBtn" class="filters-box__clear">
+        Limpiar
+      </button>
+    </div>
+
+    <div class="filter-group">
+  <label class="filter-label">Categoría</label>
+  <select id="filterCategory" class="filter-select">
+    <option value="">Todas</option>
+  </select>
+</div>
+
+<div class="filter-group">
+  <label class="filter-label">Marca</label>
+  <select id="filterBrand" class="filter-select">
+    <option value="">Todas</option>
+  </select>
+</div>
+
+<div class="filter-group">
+  <label class="filter-label">Modelo</label>
+  <select id="filterModel" class="filter-select" disabled>
+    <option value="">Seleccione marca</option>
+  </select>
+</div>
+
+<div class="filter-group">
+  <label class="filter-label">Rodado</label>
+  <select id="filterRim" class="filter-select">
+    <option value="">Todos</option>
+  </select>
+</div>
+
+
+  </div>
+
+</aside>
+
+  <div class="catalog__content">
+    <h2 id="resultsTitle" class="section-title">Productos destacados</h2>
+
+    <div class="results__bar">
+      <div id="resultsCount" class="muted">Cargando productos…</div>
+    </div>
+
+    <div id="productsGrid" class="grid" aria-live="polite"></div>
+
+    <div id="pagination" class="pagination"></div>
+
+    <div id="emptyState" class="empty" hidden>
+      <div class="empty__title">No encontramos resultados</div>
+      <div class="empty__text">Probá cambiando búsqueda o categoría.</div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+  <aside id="cartDrawer" class="drawer" aria-hidden="true">
+    <div class="drawer__overlay" id="cartOverlay"></div>
+
+    <div class="drawer__panel" role="dialog" aria-modal="true" aria-label="Carrito">
+
+<div class="drawer__header">
+  <div>
+    <div class="drawer__title">Carrito</div>
+    <div class="drawer__subtitle muted">Armá tu pedido y enviá por WhatsApp</div>
+  </div>
+
+  <button id="cartCloseBtn" class="drawer__close" type="button" aria-label="Cerrar carrito">
+    ✕
+  </button>
+</div>
+
+      <div id="cartItems" class="cart"></div>
+
+      <div class="drawer__footer">
+        <div class="totals">
+          <div class="totals__row">
+            <span>Total</span>
+            <strong id="cartTotal">$0</strong>
+          </div>
+          <div class="muted small">* Los ítems sin precio no se suman.</div>
+        </div>
+
+        <button id="checkoutBtn" class="btn btn--primary btn--block" type="button" data-phone="5491159075944">
+          Finalizar por WhatsApp
+        </button>
+      </div>
+    </div>
+  </aside>
+  <footer class="footer">
+  <div class="container footer__inner">
+
+    <div class="footer__brand">
+      <img src="./assets/img/logo.png" alt="RS Accesorios" class="footer__logo">
+      <p class="footer__text">
+        Accesorios y repuestos para vehículos.
+      </p>
+    </div>
+
+    <div class="footer__contact">
+      <h4 class="footer__title">Contacto</h4>
+      <p>WhatsApp: +54 11 5907 5944</p>
+      <p>Email: ventas@rsaccesorios.com</p>
+      <p>Buenos Aires, Argentina</p>
+    </div>
+
+    <div class="footer__links">
+  <h4 class="footer__title">Secciones</h4>
+  <a href="#" data-nav-category="">Inicio</a>
+  <a href="#" data-nav-category="ESPEJOS">Espejos</a>
+  <a href="#" data-nav-category="TAZAS">Tazas</a>
+  <a href="#" data-nav-category="OPTICAS">Ópticas</a>
+</div>
+
+  </div>
+
+  <div class="footer__bottom">
+    © 2026 RS Accesorios - Todos los derechos reservados
+  </div>
+</footer>
+  <script type="module" src="./assets/js/main.js"></script>
+</body>
+</html>
