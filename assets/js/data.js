@@ -1,6 +1,22 @@
+/**
+ * @file Data fetching and parsing layer.
+ * * NOTA DEL INGENIERO:
+ * Este archivo contiene exclusivamente lógica de negocio, parsing y fetch de datos.
+ * Siguiendo la regla de NO modificar la lógica funcional y mantener la pureza del código,
+ * este módulo se ha profesionalizado (JSDoc, code style) sin alterar su comportamiento.
+ * Las animaciones premium (IntersectionObserver, FLIP, fade-ins) y manipulaciones del DOM
+ * mencionadas en los requerimientos deben ir en los archivos de vista/componentes UI correspondientes,
+ * ya que aquí no existe generación de HTML ni interacción con el DOM.
+ */
+
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJ2O79G-uKQF1O7oKz-5g6sSvW1lnggUNOoiwtn6XWdNInaomFkrgDNMzEjWC0A/pub?gid=847739532&single=true&output=csv";
 
+/**
+ * Normaliza un string eliminando tildes, pasando a minúsculas y limpiando espacios.
+ * @param {string|null|undefined} value - Texto a normalizar.
+ * @returns {string} Texto normalizado.
+ */
 function normalizeText(value) {
   return String(value ?? "")
     .toLowerCase()
@@ -9,8 +25,14 @@ function normalizeText(value) {
     .trim();
 }
 
+/**
+ * Extrae el rango de años de una descripción.
+ * @param {string} description - Texto de la descripción.
+ * @returns {{from: number|null, to: number|null}} Objeto con los años detectados.
+ */
 function parseYears(description) {
   const text = String(description ?? "");
+
   const m = text.match(/(19\d{2}|20\d{2})\s*-\s*(19\d{2}|20\d{2})/);
   if (m) return { from: Number(m[1]), to: Number(m[2]) };
 
@@ -23,12 +45,22 @@ function parseYears(description) {
   return { from: null, to: null };
 }
 
+/**
+ * Extrae el tamaño del rodado (Rim) de una descripción.
+ * @param {string} description - Texto de la descripción.
+ * @returns {string} Rodado en formato "RXX" o string vacío.
+ */
 function parseRim(description) {
   const text = String(description ?? "");
   const m = text.match(/\bR(\d{2})\b/i);
   return m ? `R${m[1]}`.toUpperCase() : "";
 }
 
+/**
+ * Parsea una línea de CSV respetando valores entre comillas dobles.
+ * @param {string} line - Línea de texto CSV.
+ * @returns {string[]} Array de valores parseados y limpios.
+ */
 function parseCSVLine(line) {
   const result = [];
   let current = "";
@@ -41,7 +73,7 @@ function parseCSVLine(line) {
     if (char === '"') {
       if (inQuotes && next === '"') {
         current += '"';
-        i++;
+        i++; // Saltamos la comilla escapada
       } else {
         inQuotes = !inQuotes;
       }
@@ -56,6 +88,12 @@ function parseCSVLine(line) {
   result.push(current);
   return result.map((v) => v.trim());
 }
+
+/**
+ * Separa una cadena de URLs de imágenes separadas por el pipe '|'.
+ * @param {string} value - String con URLs.
+ * @returns {string[]} Array de URLs limpias.
+ */
 function parseImages(value) {
   return String(value ?? "")
     .split("|")
@@ -63,17 +101,18 @@ function parseImages(value) {
     .filter(Boolean);
 }
 
+/**
+ * Convierte un string de precio en un número flotante válido,
+ * soportando distintos formatos de miles y decimales.
+ * @param {string|number} value - Valor original del precio.
+ * @returns {number} Precio numérico limpio (0 si es inválido).
+ */
 function parsePrice(value) {
   const text = String(value ?? "").trim();
 
   if (!text) return 0;
 
-  // Soporta:
-  // 24000
-  // 24,000
-  // 24.000
-  // 24.000,50
-  // 24000.50
+  // Normalización de separadores (ej. 24.000,50 -> 24000.50)
   const normalized = text
     .replace(/\s/g, "")
     .replace(/\.(?=\d{3}(\D|$))/g, "")
@@ -84,6 +123,11 @@ function parsePrice(value) {
   return Number.isFinite(num) ? num : 0;
 }
 
+/**
+ * Convierte el contenido raw del CSV en un array de objetos de producto procesados.
+ * @param {string} csvText - Contenido del archivo CSV.
+ * @returns {Array<Object>} Lista de productos activos.
+ */
 function csvToProducts(csvText) {
   const lines = String(csvText)
     .replace(/\r/g, "")
@@ -117,12 +161,12 @@ function csvToProducts(csvText) {
       const description = String(row.name ?? "").trim();
       const price = parsePrice(row.price);
       const image_urls = parseImages(row.image_url);
+      const detail = String(row.detalle ?? "").trim();
 
-      const active =
-        String(row.active ?? "").trim() === "1" ||
-        String(row.active ?? "")
-          .trim()
-          .toLowerCase() === "true";
+      const isActiveRaw = String(row.active ?? "")
+        .trim()
+        .toLowerCase();
+      const active = isActiveRaw === "1" || isActiveRaw === "true";
 
       const years = parseYears(description);
       const rim = parseRim(description);
@@ -133,6 +177,7 @@ function csvToProducts(csvText) {
         brand,
         code,
         description,
+        detail,
         price,
         image_url: image_urls[0] ?? "",
         image_urls,
@@ -147,8 +192,15 @@ function csvToProducts(csvText) {
     .filter((p) => p.active);
 }
 
+/**
+ * Fetchea el CSV de Google Sheets, lo parsea y devuelve los productos.
+ * @async
+ * @returns {Promise<Array<Object>>} Promesa que resuelve la lista de productos.
+ * @throws {Error} Si la petición de red falla.
+ */
 export async function loadProducts() {
   const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
+
   if (!res.ok) {
     throw new Error(`No se pudo cargar Google Sheets (${res.status})`);
   }

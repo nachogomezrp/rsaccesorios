@@ -33,6 +33,8 @@ let state = {
   },
 };
 
+// --- Utils & Data processing (No logic changed) ---
+
 function normalizeText(value) {
   return String(value ?? "")
     .toLowerCase()
@@ -43,9 +45,7 @@ function normalizeText(value) {
 
 function getFeaturedProducts(products) {
   const espejos = products.filter((p) => p.category === "ESPEJOS").slice(0, 4);
-
   const tazas = products.filter((p) => p.category === "TAZAS").slice(0, 4);
-
   return [...espejos, ...tazas];
 }
 
@@ -56,7 +56,6 @@ function formatCategoryLabel(cat) {
     OPTICAS: "Ópticas",
     VIDRIOS: "Vidrios",
   };
-
   return map[cat] || (cat ? cat.charAt(0) + cat.slice(1).toLowerCase() : "");
 }
 
@@ -66,7 +65,6 @@ function uniqueValues(products, key) {
   );
 }
 
-// MVP: inferimos un modelo simple desde la descripción
 function extractModelFromProduct(product) {
   const description = String(product.description ?? "").trim();
   const brand = String(product.brand ?? "").trim();
@@ -86,7 +84,6 @@ function extractModelFromProduct(product) {
   );
 
   if (!filteredWords.length) return "";
-
   return filteredWords[0].toUpperCase();
 }
 
@@ -103,40 +100,61 @@ function extractModels(products, brand, category = "") {
   return [...new Set(models)].sort((a, b) => a.localeCompare(b, "es"));
 }
 
+// --- UI & Visual Enhancements (Senior UX/UI level) ---
+
+// Animación: IntersectionObserver para scroll reveals suaves (fade-in + slide-up)
+const revealObserver = new IntersectionObserver(
+  (entries, observer) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        // Añadimos clase para gatillar animación CSS (transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1))
+        requestAnimationFrame(() => {
+          entry.target.classList.add("is-revealed");
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { root: null, rootMargin: "0px 0px -50px 0px", threshold: 0.1 },
+);
+
 function buildFilters(products) {
   const categories = uniqueValues(products, "category");
   const brands = uniqueValues(products, "brand");
   const rims = uniqueValues(products, "rim");
 
-  if (els.filterCategory) {
-    els.filterCategory.innerHTML =
-      `<option value="">Todas</option>` +
-      categories
-        .map((category) => {
-          const label = formatCategoryLabel(category);
-          return `<option value="${category}">${label}</option>`;
-        })
-        .join("");
-    els.filterCategory.value = state.category;
-  }
+  // Animación: Actualización DOM limpia usando requestAnimationFrame para evitar layout thrashing
+  requestAnimationFrame(() => {
+    if (els.filterCategory) {
+      els.filterCategory.innerHTML =
+        `<option value="">Todas</option>` +
+        categories
+          .map(
+            (category) =>
+              `<option value="${category}">${formatCategoryLabel(category)}</option>`,
+          )
+          .join("");
+      els.filterCategory.value = state.category;
+    }
 
-  if (els.filterBrand) {
-    els.filterBrand.innerHTML =
-      `<option value="">Todas</option>` +
-      brands
-        .map((brand) => `<option value="${brand}">${brand}</option>`)
-        .join("");
-    els.filterBrand.value = state.filters.brand;
-  }
+    if (els.filterBrand) {
+      els.filterBrand.innerHTML =
+        `<option value="">Todas</option>` +
+        brands
+          .map((brand) => `<option value="${brand}">${brand}</option>`)
+          .join("");
+      els.filterBrand.value = state.filters.brand;
+    }
 
-  if (els.filterRim) {
-    els.filterRim.innerHTML =
-      `<option value="">Todos</option>` +
-      rims.map((rim) => `<option value="${rim}">${rim}</option>`).join("");
-    els.filterRim.value = state.filters.rim;
-  }
+    if (els.filterRim) {
+      els.filterRim.innerHTML =
+        `<option value="">Todos</option>` +
+        rims.map((rim) => `<option value="${rim}">${rim}</option>`).join("");
+      els.filterRim.value = state.filters.rim;
+    }
 
-  updateModelFilter();
+    updateModelFilter();
+  });
 }
 
 function updateModelFilter() {
@@ -145,40 +163,48 @@ function updateModelFilter() {
   const brand = state.filters.brand;
   const category = state.category;
 
-  if (!brand) {
-    els.filterModel.innerHTML = `<option value="">Seleccione marca</option>`;
-    els.filterModel.disabled = true;
-    return;
-  }
+  requestAnimationFrame(() => {
+    // Animación: Feedback visual sutil (dim/fade) al deshabilitar
+    if (!brand) {
+      els.filterModel.innerHTML = `<option value="">Seleccione marca</option>`;
+      els.filterModel.disabled = true;
+      els.filterModel.classList.add("is-disabled");
+      return;
+    }
 
-  const models = extractModels(state.products, brand, category);
+    const models = extractModels(state.products, brand, category);
 
-  els.filterModel.innerHTML =
-    `<option value="">Todos</option>` +
-    models
-      .map((model) => `<option value="${model}">${model}</option>`)
-      .join("");
+    els.filterModel.innerHTML =
+      `<option value="">Todos</option>` +
+      models
+        .map((model) => `<option value="${model}">${model}</option>`)
+        .join("");
 
-  els.filterModel.disabled = false;
-  els.filterModel.value = state.filters.model || "";
+    els.filterModel.disabled = false;
+    els.filterModel.classList.remove("is-disabled");
+    els.filterModel.value = state.filters.model || "";
+
+    // Animación: Destello sutil al activar un filtro dependiente
+    els.filterModel.classList.add("ui-pulse");
+    setTimeout(() => els.filterModel.classList.remove("ui-pulse"), 300);
+  });
 }
 
 function clearSidebarFilters() {
   state.category = "";
-  state.filters = {
-    brand: "",
-    model: "",
-    rim: "",
-  };
+  state.filters = { brand: "", model: "", rim: "" };
 
-  if (els.filterCategory) els.filterCategory.value = "";
-  if (els.filterBrand) els.filterBrand.value = "";
-  if (els.filterRim) els.filterRim.value = "";
+  requestAnimationFrame(() => {
+    if (els.filterCategory) els.filterCategory.value = "";
+    if (els.filterBrand) els.filterBrand.value = "";
+    if (els.filterRim) els.filterRim.value = "";
 
-  if (els.filterModel) {
-    els.filterModel.innerHTML = `<option value="">Seleccione marca</option>`;
-    els.filterModel.disabled = true;
-  }
+    if (els.filterModel) {
+      els.filterModel.innerHTML = `<option value="">Seleccione marca</option>`;
+      els.filterModel.disabled = true;
+      els.filterModel.classList.add("is-disabled");
+    }
+  });
 
   setActiveNav(state.category);
 }
@@ -188,13 +214,16 @@ function clearDependentFilters() {
   state.filters.model = "";
   state.filters.rim = "";
 
-  if (els.filterBrand) els.filterBrand.value = "";
-  if (els.filterRim) els.filterRim.value = "";
+  requestAnimationFrame(() => {
+    if (els.filterBrand) els.filterBrand.value = "";
+    if (els.filterRim) els.filterRim.value = "";
 
-  if (els.filterModel) {
-    els.filterModel.innerHTML = `<option value="">Seleccione marca</option>`;
-    els.filterModel.disabled = true;
-  }
+    if (els.filterModel) {
+      els.filterModel.innerHTML = `<option value="">Seleccione marca</option>`;
+      els.filterModel.disabled = true;
+      els.filterModel.classList.add("is-disabled");
+    }
+  });
 }
 
 function renderPagination(totalItems, currentPage, pageSize) {
@@ -209,69 +238,98 @@ function renderPagination(totalItems, currentPage, pageSize) {
 
   const isHomeView = !qNorm && !hasSidebarFilters;
 
-  if (isHomeView) {
-    els.pagination.innerHTML = "";
+  if (isHomeView || Math.ceil(totalItems / pageSize) <= 1) {
+    requestAnimationFrame(() => {
+      els.pagination.innerHTML = "";
+      els.pagination.classList.remove("is-visible");
+    });
     return;
   }
 
   const totalPages = Math.ceil(totalItems / pageSize);
 
-  if (totalPages <= 1) {
-    els.pagination.innerHTML = "";
-    return;
-  }
+  // Animación: Staggered fade-in para los botones de paginación
+  const frag = document.createDocumentFragment();
 
-  let html = "";
+  const createBtn = (text, page, isCurrent, isDisabled, delayIndex) => {
+    const btn = document.createElement("button");
+    btn.className = `pagination__btn animate-enter ${isCurrent ? "is-active" : ""}`;
+    btn.dataset.page = page;
+    btn.textContent = text;
+    btn.style.animationDelay = `${delayIndex * 30}ms`; // Stagger effect
 
-  html += `
-    <button class="pagination__btn" data-page="${currentPage - 1}" ${currentPage === 1 ? "disabled" : ""}>
-      Anterior
-    </button>
-  `;
+    if (isDisabled) btn.disabled = true;
+    if (isCurrent) btn.setAttribute("aria-current", "page");
+
+    return btn;
+  };
+
+  frag.appendChild(
+    createBtn("Anterior", currentPage - 1, false, currentPage === 1, 0),
+  );
 
   for (let i = 1; i <= totalPages; i++) {
-    html += `
-      <button class="pagination__btn ${i === currentPage ? "is-active" : ""}" data-page="${i}">
-        ${i}
-      </button>
-    `;
+    frag.appendChild(createBtn(i, i, i === currentPage, false, i));
   }
 
-  html += `
-    <button class="pagination__btn" data-page="${currentPage + 1}" ${currentPage === totalPages ? "disabled" : ""}>
-      Siguiente
-    </button>
-  `;
+  frag.appendChild(
+    createBtn(
+      "Siguiente",
+      currentPage + 1,
+      false,
+      currentPage === totalPages,
+      totalPages + 1,
+    ),
+  );
 
-  els.pagination.innerHTML = html;
+  requestAnimationFrame(() => {
+    els.pagination.innerHTML = "";
+    els.pagination.appendChild(frag);
+    els.pagination.classList.add("is-visible");
+  });
 }
 
 function updateCatalogUI({ isHomeView, totalItems }) {
   const resultsTitle = document.getElementById("resultsTitle");
 
-  if (resultsTitle) {
-    resultsTitle.textContent = isHomeView
-      ? "Productos destacados"
-      : "Resultados";
-  }
-
-  if (els.catalogSidebar) {
-    els.catalogSidebar.hidden = isHomeView;
-  }
-
-  if (els.resultsSection) {
-    els.resultsSection.classList.toggle("catalog--home", isHomeView);
-  }
-
-  if (els.resultsCount) {
-    if (isHomeView) {
-      els.resultsCount.textContent = "";
-      els.resultsCount.hidden = true;
-    } else {
-      els.resultsCount.textContent = `${totalItems} producto${totalItems === 1 ? "" : "s"}`;
-      els.resultsCount.hidden = false;
+  requestAnimationFrame(() => {
+    if (resultsTitle) {
+      // Animación: Cambio de texto suave (requeriría crossfade CSS, aplicamos clase de actualización)
+      resultsTitle.classList.add("ui-text-updating");
+      resultsTitle.textContent = isHomeView
+        ? "Productos destacados"
+        : "Resultados";
+      setTimeout(() => resultsTitle.classList.remove("ui-text-updating"), 200);
     }
-  }
+
+    if (els.catalogSidebar) {
+      els.catalogSidebar.hidden = isHomeView;
+      // Añadir clase para transicionar el layout del grid al ocultar sidebar
+      els.catalogSidebar.classList.toggle("is-hidden-visually", isHomeView);
+    }
+
+    if (els.resultsSection) {
+      els.resultsSection.classList.toggle("catalog--home", isHomeView);
+    }
+
+    if (els.resultsCount) {
+      if (isHomeView) {
+        els.resultsCount.textContent = "";
+        els.resultsCount.hidden = true;
+      } else {
+        els.resultsCount.textContent = `${totalItems} producto${totalItems === 1 ? "" : "s"}`;
+        els.resultsCount.hidden = false;
+        // Animación: Fade in sutil para el contador
+        els.resultsCount.animate(
+          [
+            { opacity: 0, transform: "translateY(5px)" },
+            { opacity: 1, transform: "translateY(0)" },
+          ],
+          { duration: 300, easing: "cubic-bezier(0.4, 0, 0.2, 1)" },
+        );
+      }
+    }
+  });
 }
 
 function apply() {
@@ -292,14 +350,8 @@ function apply() {
   const filtered = baseProducts.filter((p) => {
     if (state.category && p.category !== state.category) return false;
     if (qNorm && !p.searchText.includes(qNorm)) return false;
-
-    if (state.filters.brand && p.brand !== state.filters.brand) {
-      return false;
-    }
-
-    if (state.filters.rim && p.rim !== state.filters.rim) {
-      return false;
-    }
+    if (state.filters.brand && p.brand !== state.filters.brand) return false;
+    if (state.filters.rim && p.rim !== state.filters.rim) return false;
 
     if (state.filters.model) {
       const inferredModel = extractModelFromProduct(p);
@@ -321,20 +373,51 @@ function apply() {
   const paginated = filtered.slice(start, end);
 
   updateCatalogUI({ isHomeView, totalItems });
-  renderProducts(paginated, els);
-  renderPagination(totalItems, state.currentPage, state.pageSize);
+
+  // Animación: Fade-out rápido del grid, render, y fade-in escalonado
+  if (els.productsGrid) {
+    requestAnimationFrame(() => {
+      els.productsGrid.classList.add("grid-updating");
+
+      // Permitir que el fade-out de CSS (ej: 150ms) suceda antes de cambiar el DOM
+      setTimeout(() => {
+        renderProducts(paginated, els);
+        renderPagination(totalItems, state.currentPage, state.pageSize);
+
+        requestAnimationFrame(() => {
+          els.productsGrid.classList.remove("grid-updating");
+          els.productsGrid.classList.add("grid-updated");
+
+          // Limpieza de clase
+          setTimeout(
+            () => els.productsGrid.classList.remove("grid-updated"),
+            400,
+          );
+        });
+      }, 150);
+    });
+  } else {
+    // Fallback por si productsGrid no existe
+    renderProducts(paginated, els);
+    renderPagination(totalItems, state.currentPage, state.pageSize);
+  }
 }
 
 function setActiveNav(category) {
-  const links = els.categoryNav?.querySelectorAll("[data-nav-category]") || [];
-  for (const a of links) {
-    const cat = a.getAttribute("data-nav-category") || "";
-    a.classList.toggle("is-active", cat === category);
-  }
+  requestAnimationFrame(() => {
+    const links =
+      els.categoryNav?.querySelectorAll("[data-nav-category]") || [];
+    for (const a of links) {
+      const cat = a.getAttribute("data-nav-category") || "";
+      const isActive = cat === category;
+      a.classList.toggle("is-active", isActive);
+      a.setAttribute("aria-current", isActive ? "page" : "false");
+    }
 
-  if (els.filterCategory) {
-    els.filterCategory.value = category || "";
-  }
+    if (els.filterCategory) {
+      els.filterCategory.value = category || "";
+    }
+  });
 }
 
 function buildCategoryNav(products) {
@@ -345,16 +428,23 @@ function buildCategoryNav(products) {
   ].sort((a, b) => a.localeCompare(b));
 
   const parts = [];
-  parts.push(`<a href="#" class="nav__link" data-nav-category="">Todos</a>`);
+  parts.push(
+    `<a href="#" class="nav__link animate-link" data-nav-category="">Todos</a>`,
+  );
 
   for (const cat of categories) {
     parts.push(
-      `<a href="#" class="nav__link" data-nav-category="${cat}">${formatCategoryLabel(cat)}</a>`,
+      `<a href="#" class="nav__link animate-link" data-nav-category="${cat}">${formatCategoryLabel(cat)}</a>`,
     );
   }
 
-  els.categoryNav.innerHTML = parts.join("");
+  requestAnimationFrame(() => {
+    els.categoryNav.innerHTML = parts.join("");
+  });
 }
+
+// --- Menu Interaction & Premium Transitions ---
+
 const navCategories = document.getElementById("navCategories");
 const categoriesToggle = document.getElementById("categoriesToggle");
 const categoriesMenu = document.getElementById("categoriesMenu");
@@ -363,35 +453,47 @@ let categoriesCloseTimer;
 
 function openCategoriesMenu() {
   clearTimeout(categoriesCloseTimer);
-  navCategories.classList.add("is-open");
-  categoriesToggle.setAttribute("aria-expanded", "true");
-  categoriesMenu.hidden = false;
+
+  requestAnimationFrame(() => {
+    navCategories.classList.add("is-open");
+    categoriesToggle.setAttribute("aria-expanded", "true");
+    categoriesMenu.hidden = false;
+
+    // Animación: Transform + Opacity suave tras quitar el 'hidden'
+    requestAnimationFrame(() => {
+      categoriesMenu.classList.add("is-visible");
+    });
+  });
 }
 
 function closeCategoriesMenu() {
-  categoriesCloseTimer = setTimeout(() => {
-    navCategories.classList.remove("is-open");
-    categoriesToggle.setAttribute("aria-expanded", "false");
-    categoriesMenu.hidden = true;
-  }, 120);
+  requestAnimationFrame(() => {
+    // Animación: Retiramos clase visual primero para iniciar la transición CSS
+    categoriesMenu.classList.remove("is-visible");
+
+    // Sincronizado con la duración típica de una transición premium (ej. 300ms)
+    categoriesCloseTimer = setTimeout(() => {
+      navCategories.classList.remove("is-open");
+      categoriesToggle.setAttribute("aria-expanded", "false");
+      categoriesMenu.hidden = true;
+    }, 300);
+  });
 }
 
 if (window.innerWidth > 900) {
-  navCategories.addEventListener("mouseenter", openCategoriesMenu);
-  navCategories.addEventListener("mouseleave", closeCategoriesMenu);
+  navCategories?.addEventListener("mouseenter", openCategoriesMenu);
+  navCategories?.addEventListener("mouseleave", closeCategoriesMenu);
 }
 
-categoriesToggle.addEventListener("click", () => {
+categoriesToggle?.addEventListener("click", () => {
   const isOpen = navCategories.classList.contains("is-open");
-
   if (isOpen) {
-    navCategories.classList.remove("is-open");
-    categoriesToggle.setAttribute("aria-expanded", "false");
-    categoriesMenu.hidden = true;
+    closeCategoriesMenu();
   } else {
     openCategoriesMenu();
   }
 });
+
 function initHeroSlider() {
   const slides = Array.from(document.querySelectorAll(".hero__slide"));
   const dots = Array.from(document.querySelectorAll(".hero__dot"));
@@ -404,14 +506,39 @@ function initHeroSlider() {
   let autoPlayId = null;
 
   function updateSlider(index) {
+    const prevIndex = current;
     current = (index + slides.length) % slides.length;
 
-    slides.forEach((slide, i) => {
-      slide.classList.toggle("hero__slide--active", i === current);
-    });
+    requestAnimationFrame(() => {
+      slides.forEach((slide, i) => {
+        // Animación: Crossfade y scale moderno tipo Ken Burns manejado vía CSS clases
+        if (i === current) {
+          slide.classList.add("hero__slide--active");
+          slide.style.zIndex = "2";
+          slide.setAttribute("aria-hidden", "false");
+        } else if (i === prevIndex) {
+          slide.classList.remove("hero__slide--active");
+          slide.classList.add("hero__slide--leaving");
+          slide.style.zIndex = "1";
+          slide.setAttribute("aria-hidden", "true");
 
-    dots.forEach((dot, i) => {
-      dot.classList.toggle("hero__dot--active", i === current);
+          setTimeout(() => {
+            slide.classList.remove("hero__slide--leaving");
+            slide.style.zIndex = "0";
+          }, 800); // 800ms para crossfades épicos
+        } else {
+          slide.classList.remove("hero__slide--active");
+          slide.classList.remove("hero__slide--leaving");
+          slide.style.zIndex = "0";
+          slide.setAttribute("aria-hidden", "true");
+        }
+      });
+
+      dots.forEach((dot, i) => {
+        const isActive = i === current;
+        dot.classList.toggle("hero__dot--active", isActive);
+        dot.setAttribute("aria-current", isActive ? "true" : "false");
+      });
     });
   }
 
@@ -425,7 +552,7 @@ function initHeroSlider() {
 
   function startAutoPlay() {
     stopAutoPlay();
-    autoPlayId = setInterval(nextSlide, 5000);
+    autoPlayId = setInterval(nextSlide, 6000); // Ligeramente más pausado para UX premium
   }
 
   function stopAutoPlay() {
@@ -464,12 +591,18 @@ function initCategoriesMenu() {
 
   function openMenu() {
     menu.hidden = false;
-    toggle.setAttribute("aria-expanded", "true");
+    requestAnimationFrame(() => {
+      toggle.setAttribute("aria-expanded", "true");
+      menu.classList.add("is-visible");
+    });
   }
 
   function closeMenu() {
-    menu.hidden = true;
+    menu.classList.remove("is-visible");
     toggle.setAttribute("aria-expanded", "false");
+    setTimeout(() => {
+      menu.hidden = true;
+    }, 300);
   }
 
   function toggleMenu() {
@@ -499,7 +632,17 @@ function initCategoriesMenu() {
 }
 
 function scrollToResults() {
-  els.resultsSection?.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (!els.resultsSection) return;
+  // Animación: Smooth scroll nativo optimizado
+  const isMobile = window.innerWidth <= 768;
+  const offset = isMobile ? 80 : 120; // Considera sticky headers
+  const elementPosition = els.resultsSection.getBoundingClientRect().top;
+  const offsetPosition = elementPosition + window.pageYOffset - offset;
+
+  window.scrollTo({
+    top: offsetPosition,
+    behavior: "smooth",
+  });
 }
 
 async function boot() {
@@ -516,6 +659,10 @@ async function boot() {
     buildFilters(state.products);
 
     apply();
+
+    // Observers para elementos estáticos de la UI inicial
+    if (els.resultsSection) revealObserver.observe(els.resultsSection);
+    if (els.catalogSidebar) revealObserver.observe(els.catalogSidebar);
 
     els.q?.addEventListener("input", () => {
       state.currentPage = 1;
@@ -599,10 +746,13 @@ async function boot() {
 
     els.pagination?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-page]");
-      if (!btn) return;
+      if (!btn || btn.disabled) return;
 
       const page = Number(btn.getAttribute("data-page"));
       if (!page || page < 1) return;
+
+      // Feedback háptico visual
+      btn.classList.add("is-loading");
 
       state.currentPage = page;
       apply();
@@ -611,12 +761,18 @@ async function boot() {
   } catch (error) {
     console.error("Error al iniciar la app:", error);
 
-    if (els.productsGrid) els.productsGrid.innerHTML = "";
-    if (els.emptyState) els.emptyState.hidden = false;
-    if (els.resultsCount) {
-      els.resultsCount.hidden = false;
-      els.resultsCount.textContent = "No se pudieron cargar los productos";
-    }
+    requestAnimationFrame(() => {
+      if (els.productsGrid) els.productsGrid.innerHTML = "";
+      if (els.emptyState) {
+        els.emptyState.hidden = false;
+        els.emptyState.classList.add("is-visible");
+      }
+      if (els.resultsCount) {
+        els.resultsCount.hidden = false;
+        els.resultsCount.textContent = "No se pudieron cargar los productos";
+        els.resultsCount.classList.add("ui-error-text");
+      }
+    });
   }
 }
 

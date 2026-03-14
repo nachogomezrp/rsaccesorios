@@ -3,8 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>RS Accesorios | Premium Auto Parts</title>
+    <title>Detalle de Producto | RS Accesorios</title>
 
     <link rel="icon" type="image/png" href="./assets/img/logo.png" />
 
@@ -23,7 +22,7 @@
   <body>
     <header class="header">
       <div class="header__top">
-        <a href="/" class="brand" aria-label="Ir al inicio">
+        <a href="./index.html" class="brand" aria-label="Ir al inicio">
           <div class="brand__img" style="width: 64px; height: 64px">
             <img src="./assets/img/logo.png" alt="RS Accesorios Logo" />
           </div>
@@ -33,7 +32,7 @@
           </div>
         </a>
 
-        <div class="searchbar">
+        <div class="searchbar" style="opacity: 0.7; cursor: not-allowed">
           <svg
             class="searchbar__icon"
             style="width: 18px; height: 18px; color: var(--color-text-muted)"
@@ -49,17 +48,18 @@
             />
           </svg>
           <input
-            id="q"
             class="searchbar__input"
             type="search"
-            placeholder="¿Qué estás buscando hoy?"
-            autocomplete="off"
+            placeholder="Vista de detalle..."
+            disabled
+            style="cursor: not-allowed"
           />
           <button
             class="searchbar__btn"
-            id="searchBtn"
             type="button"
             aria-label="Buscar"
+            disabled
+            style="background: var(--neutral-200); color: var(--neutral-800)"
           >
             <svg
               style="width: 20px; height: 20px"
@@ -101,190 +101,34 @@
           </button>
         </div>
       </div>
-
-      <nav class="nav" aria-label="Navegación de categorías">
-        <div class="nav__inner">
-          <div class="nav-categories" id="navCategories">
-            <button
-              id="categoriesToggle"
-              class="nav-categories__toggle"
-              type="button"
-              aria-expanded="false"
-              aria-controls="categoriesMenu"
-            >
-              <span class="nav-categories__icon" aria-hidden="true">
-                <span></span><span></span><span></span>
-              </span>
-              <span>Explorar Categorías</span>
-            </button>
-
-            <div id="categoriesMenu" class="nav-categories__menu" hidden>
-              <div id="categoryNav" class="nav-categories__list"></div>
-            </div>
-          </div>
-        </div>
-      </nav>
     </header>
 
-    <main>
-      <section class="hero">
-        <div class="hero__slider" id="heroSlider">
-          <div class="hero__slide hero__slide--active">
-            <img
-              src="./assets/img/hero-espejos.jpg"
-              alt="Espejos de alta calidad"
-              class="hero__img"
-            />
-            <div class="hero__content">
-              <h1 class="hero__title">Visión clara,<br />diseño perfecto.</h1>
-              <p class="hero__text">
-                Encuentra espejos premium compatibles con los modelos más
-                exigentes del mercado.
-              </p>
-            </div>
-          </div>
-
-          <div class="hero__slide">
-            <img
-              src="./assets/img/hero-tazas.jpg"
-              alt="Tazas personalizadas"
-              class="hero__img"
-            />
-            <div class="hero__content">
-              <h1 class="hero__title">
-                Detalles que<br />marcan la diferencia.
-              </h1>
-              <p class="hero__text">
-                Tazas y accesorios diseñados para elevar la estética de tu
-                vehículo.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <button
-          class="hero__arrow hero__arrow--left"
-          id="heroPrev"
-          aria-label="Anterior"
+    <main class="product-page">
+      <div class="product-breadcrumb">
+        <a href="./index.html">Inicio</a>
+        <svg
+          style="width: 14px; height: 14px; color: var(--neutral-200)"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
         >
-          <svg
-            style="width: 24px; height: 24px"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M15.75 19.5L8.25 12l7.5-7.5"
-            />
-          </svg>
-        </button>
-        <button
-          class="hero__arrow hero__arrow--right"
-          id="heroNext"
-          aria-label="Siguiente"
-        >
-          <svg
-            style="width: 24px; height: 24px"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M8.25 4.5l7.5 7.5-7.5 7.5"
-            />
-          </svg>
-        </button>
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M9 5l7 7-7 7"
+          />
+        </svg>
+        <span style="color: var(--color-text)">Detalle de Producto</span>
+      </div>
 
-        <div class="hero__dots">
-          <button
-            class="hero__dot hero__dot--active"
-            aria-label="Ir a diapositiva 1"
-          ></button>
-          <button class="hero__dot" aria-label="Ir a diapositiva 2"></button>
+      <section id="productDetail" class="product-detail"></section>
+
+      <section class="related-products">
+        <div class="results__bar">
+          <h2 class="section-title">Te podría interesar</h2>
         </div>
-      </section>
-
-      <section id="resultsSection" class="catalog">
-        <aside id="catalogSidebar" class="catalog__sidebar" hidden>
-          <div class="filters-box">
-            <div class="filters-box__header">
-              <h3 class="filters-box__title">Filtros</h3>
-              <button id="clearFiltersBtn" class="filters-box__clear">
-                Limpiar todo
-              </button>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label" for="filterCategory">Categoría</label>
-              <select id="filterCategory" class="filter-select">
-                <option value="">Todas las categorías</option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label" for="filterBrand">Marca</label>
-              <select id="filterBrand" class="filter-select">
-                <option value="">Todas las marcas</option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label" for="filterModel">Modelo</label>
-              <select id="filterModel" class="filter-select" disabled>
-                <option value="">Seleccione marca primero</option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <label class="filter-label" for="filterRim">Rodado</label>
-              <select id="filterRim" class="filter-select">
-                <option value="">Todos los rodados</option>
-              </select>
-            </div>
-          </div>
-        </aside>
-
-        <div class="catalog__content">
-          <div class="results__bar">
-            <h2 id="resultsTitle" class="section-title">Nuestra Selección</h2>
-            <div id="resultsCount" class="card__meta">Cargando catálogo…</div>
-          </div>
-
-          <div id="productsGrid" class="grid" aria-live="polite"></div>
-          <div id="pagination" class="pagination"></div>
-
-          <div id="emptyState" class="empty" hidden>
-            <svg
-              style="
-                width: 48px;
-                height: 48px;
-                margin: 0 auto 16px;
-                color: var(--neutral-200);
-              "
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h3 class="empty__title">No encontramos resultados</h3>
-            <p class="empty__text">
-              Intenta ajustar los filtros o usar términos de búsqueda
-              diferentes.
-            </p>
-          </div>
-        </div>
+        <div id="relatedProductsGrid" class="grid"></div>
       </section>
     </main>
 
@@ -398,10 +242,10 @@
 
         <div class="footer__links">
           <h4 class="footer__title">Catálogo Rápido</h4>
-          <a href="#" data-nav-category="">Ver Todo</a>
-          <a href="#" data-nav-category="ESPEJOS">Espejos Premium</a>
-          <a href="#" data-nav-category="TAZAS">Tazas y Llantas</a>
-          <a href="#" data-nav-category="OPTICAS">Iluminación y Ópticas</a>
+          <a href="./index.html">Ver Todo</a>
+          <a href="./index.html">Espejos Premium</a>
+          <a href="./index.html">Tazas y Llantas</a>
+          <a href="./index.html">Iluminación y Ópticas</a>
         </div>
       </div>
 
@@ -410,6 +254,6 @@
       </div>
     </footer>
 
-    <script type="module" src="./assets/js/main.js"></script>
+    <script type="module" src="./assets/js/product.js"></script>
   </body>
 </html>
