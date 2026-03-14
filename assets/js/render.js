@@ -134,6 +134,11 @@ function setupCardSliders(root) {
     }
 
     if (!Array.isArray(images) || images.length <= 1) return;
+    images.forEach((src, index) => {
+      if (index === 0) return;
+      const preloadImg = new Image();
+      preloadImg.src = src;
+    });
 
     let current = 0;
 
