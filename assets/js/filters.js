@@ -32,9 +32,15 @@ export async function loadProducts(url) {
   const data = await res.json();
 
   return data.map((p) => {
-    const category = String(p.category ?? "").trim().toUpperCase();
-    const brand = String(p.brand ?? "").trim().toUpperCase();
-    const code = String(p.code ?? "").trim().toUpperCase();
+    const category = String(p.category ?? "")
+      .trim()
+      .toUpperCase();
+    const brand = String(p.brand ?? "")
+      .trim()
+      .toUpperCase();
+    const code = String(p.code ?? "")
+      .trim()
+      .toUpperCase();
     const description = String(p.description ?? "").trim();
     const price = Number(p.price ?? 0) || 0;
     const image_url = String(p.image_url ?? "").trim();
@@ -52,7 +58,7 @@ export async function loadProducts(url) {
       active: price > 0,
       years,
       rim,
-      searchText: normalizeText(`${category} ${brand} ${code} ${description}`)
+      searchText: normalizeText(`${category} ${brand} ${code} ${description}`),
     };
   });
 }

@@ -355,7 +355,43 @@ function buildCategoryNav(products) {
 
   els.categoryNav.innerHTML = parts.join("");
 }
+const navCategories = document.getElementById("navCategories");
+const categoriesToggle = document.getElementById("categoriesToggle");
+const categoriesMenu = document.getElementById("categoriesMenu");
 
+let categoriesCloseTimer;
+
+function openCategoriesMenu() {
+  clearTimeout(categoriesCloseTimer);
+  navCategories.classList.add("is-open");
+  categoriesToggle.setAttribute("aria-expanded", "true");
+  categoriesMenu.hidden = false;
+}
+
+function closeCategoriesMenu() {
+  categoriesCloseTimer = setTimeout(() => {
+    navCategories.classList.remove("is-open");
+    categoriesToggle.setAttribute("aria-expanded", "false");
+    categoriesMenu.hidden = true;
+  }, 120);
+}
+
+if (window.innerWidth > 900) {
+  navCategories.addEventListener("mouseenter", openCategoriesMenu);
+  navCategories.addEventListener("mouseleave", closeCategoriesMenu);
+}
+
+categoriesToggle.addEventListener("click", () => {
+  const isOpen = navCategories.classList.contains("is-open");
+
+  if (isOpen) {
+    navCategories.classList.remove("is-open");
+    categoriesToggle.setAttribute("aria-expanded", "false");
+    categoriesMenu.hidden = true;
+  } else {
+    openCategoriesMenu();
+  }
+});
 function initHeroSlider() {
   const slides = Array.from(document.querySelectorAll(".hero__slide"));
   const dots = Array.from(document.querySelectorAll(".hero__dot"));

@@ -56,6 +56,12 @@ function parseCSVLine(line) {
   result.push(current);
   return result.map((v) => v.trim());
 }
+function parseImages(value) {
+  return String(value ?? "")
+    .split("|")
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
 
 function parsePrice(value) {
   const text = String(value ?? "").trim();
@@ -110,7 +116,8 @@ function csvToProducts(csvText) {
         .toUpperCase();
       const description = String(row.name ?? "").trim();
       const price = parsePrice(row.price);
-      const image_url = String(row.image_url ?? "").trim();
+      const image_urls = parseImages(row.image_url);
+
       const active =
         String(row.active ?? "").trim() === "1" ||
         String(row.active ?? "")
@@ -127,7 +134,8 @@ function csvToProducts(csvText) {
         code,
         description,
         price,
-        image_url,
+        image_url: image_urls[0] ?? "",
+        image_urls,
         active: active && price > 0,
         years,
         rim,
