@@ -1,95 +1,4 @@
-// render.js
-
-// Animación: Inyección de estilos premium (fade-in, hover lift, smooth sliders)
-const injectCardPremiumStyles = () => {
-  if (document.getElementById("premium-card-styles")) return;
-  const style = document.createElement("style");
-  style.id = "premium-card-styles";
-  style.textContent = `
-    :root {
-      --card-ease: cubic-bezier(0.4, 0, 0.2, 1);
-      --card-duration: 400ms;
-    }
-    
-    @keyframes cardFadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .card {
-      transition: transform var(--card-duration) var(--card-ease), box-shadow var(--card-duration) var(--card-ease);
-      will-change: transform, box-shadow, opacity;
-      opacity: 0; /* Preparado para IntersectionObserver */
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .card.is-visible {
-      animation: cardFadeInUp var(--card-duration) var(--card-ease) forwards;
-    }
-    .card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 16px 32px -12px rgba(0, 0, 0, 0.15);
-    }
-
-    .card__img-slider {
-      position: relative;
-      overflow: hidden;
-      background: #fafafa;
-    }
-    
-    .card__img img {
-      transition: opacity 250ms ease, transform 500ms var(--card-ease);
-      will-change: opacity, transform;
-    }
-    .card:hover .card__img img {
-      transform: scale(1.03);
-    }
-    .card__img img.is-transitioning {
-      opacity: 0;
-    }
-
-    .card__slider-btn {
-      transition: opacity 250ms ease, transform 250ms var(--card-ease), background-color 250ms ease;
-      backdrop-filter: blur(4px);
-      background: rgba(255, 255, 255, 0.7);
-      opacity: 0; /* Se muestran al hacer hover en la tarjeta */
-      transform: scale(0.9);
-    }
-    .card:hover .card__slider-btn {
-      opacity: 1;
-      transform: scale(1);
-    }
-    .card__slider-btn:hover {
-      background: rgba(255, 255, 255, 0.95);
-      transform: scale(1.1) !important;
-    }
-
-    .card__slider-dots {
-      transition: opacity 250ms ease;
-    }
-    .card__slider-dot {
-      transition: all 300ms var(--card-ease);
-      background: rgba(0, 0, 0, 0.2);
-    }
-    .card__slider-dot.is-active {
-      background: rgba(0, 0, 0, 0.8);
-      transform: scale(1.2);
-    }
-
-    .btn {
-      transition: transform 200ms var(--card-ease), box-shadow 200ms var(--card-ease), background-color 200ms ease;
-      will-change: transform;
-    }
-    .btn:active:not(:disabled) {
-      transform: scale(0.96);
-    }
-    .card__detail-link {
-      transition: color 200ms ease, text-decoration 200ms ease;
-    }
-  `;
-  document.head.appendChild(style);
-};
-injectCardPremiumStyles();
+// render.js — Visual layer only. Business logic untouched.
 
 const money = new Intl.NumberFormat("es-AR", {
   style: "currency",
@@ -106,6 +15,25 @@ function escapeHtml(str) {
     .replaceAll("'", "&#039;");
 }
 
+// ─── SVG icons ────────────────────────────────────────────────────
+const IconCart = `<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+</svg>`;
+
+const IconEye = `<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+</svg>`;
+
+const IconChevLeft = `<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
+</svg>`;
+
+const IconChevRight = `<svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
+</svg>`;
+
+// ─── Card template ────────────────────────────────────────────────
 function cardTemplate(p) {
   const images =
     Array.isArray(p.image_urls) && p.image_urls.length
@@ -114,127 +42,125 @@ function cardTemplate(p) {
         ? [p.image_url]
         : ["./assets/img/placeholder.jpg"];
 
-  const price = p.active ? money.format(p.price) : "Consultar";
+  const price = p.active ? money.format(p.price) : "Consultar precio";
   const hasSlider = images.length > 1;
   const detailHref = `./product.html?code=${encodeURIComponent(p.code)}`;
+  const isConsult = !p.active;
 
   return `
-    <article class="card" data-code="${escapeHtml(p.code)}">
-      <div class="card__img-slider" data-slider>
-        <div class="card__img">
-          <img
-            src="${escapeHtml(images[0])}"
-            alt="${escapeHtml(p.description)}"
-            loading="lazy"
-            data-slider-image
-            style="display: block; width: 100%; object-fit: cover; aspect-ratio: 1/1;"
-          />
-        </div>
+<article class="card" data-code="${escapeHtml(p.code)}">
 
-        ${
-          hasSlider
-            ? `
-              <button
-                class="card__slider-btn card__slider-btn--prev"
-                type="button"
-                aria-label="Imagen anterior"
-                data-slider-prev
-              >
-                ‹
-              </button>
+  <div class="card__img-slider" data-slider>
 
-              <button
-                class="card__slider-btn card__slider-btn--next"
-                type="button"
-                aria-label="Imagen siguiente"
-                data-slider-next
-              >
-                ›
-              </button>
-
-              <div class="card__slider-dots">
-                ${images
-                  .map(
-                    (_, i) => `
-                      <button
-                        class="card__slider-dot ${i === 0 ? "is-active" : ""}"
-                        type="button"
-                        aria-label="Ver imagen ${i + 1}"
-                        data-slider-dot
-                        data-index="${i}"
-                      ></button>
-                    `,
-                  )
-                  .join("")}
-              </div>
-            `
-            : ""
-        }
-
-        <script type="application/json" class="card__slider-data">
-          ${JSON.stringify(images)}
-        </script>
+    <a class="card__detail-link" href="${escapeHtml(detailHref)}" tabindex="-1" aria-hidden="true">
+      <div class="card__img">
+        <img
+          src="${escapeHtml(images[0])}"
+          alt="${escapeHtml(p.description)}"
+          loading="lazy"
+          data-slider-image
+        />
       </div>
+    </a>
 
-      <div class="card__body" style="padding: 16px; display: flex; flex-direction: column; gap: 8px;">
-        <div class="badges" style="display: flex; flex-wrap: wrap; gap: 4px;">
-          <span class="badge">${escapeHtml(p.category)}</span>
-          <span class="badge">${escapeHtml(p.brand)}</span>
-          ${p.rim ? `<span class="badge">${escapeHtml(p.rim)}</span>` : ""}
-        </div>
+    ${
+      hasSlider
+        ? `
+    <button class="card__slider-btn card__slider-btn--prev" type="button" aria-label="Imagen anterior" data-slider-prev>
+      ${IconChevLeft}
+    </button>
+    <button class="card__slider-btn card__slider-btn--next" type="button" aria-label="Imagen siguiente" data-slider-next>
+      ${IconChevRight}
+    </button>
+    <div class="card__slider-dots">
+      ${images
+        .map(
+          (_, i) => `
+        <button
+          class="card__slider-dot ${i === 0 ? "is-active" : ""}"
+          type="button"
+          aria-label="Ver imagen ${i + 1}"
+          data-slider-dot
+          data-index="${i}"
+        ></button>
+      `,
+        )
+        .join("")}
+    </div>
+    `
+        : ""
+    }
 
-        <div class="card__title" style="font-weight: 500; font-size: 1.05rem; line-height: 1.4; margin-top: 4px;">
-          ${escapeHtml(p.description)}
-        </div>
+    <script type="application/json" class="card__slider-data">${JSON.stringify(images)}</script>
 
-        <div class="card__meta" style="font-size: 0.85rem; color: #64748b;">
-          <div>Código: ${escapeHtml(p.code)}</div>
-        </div>
+    <!-- Quick add overlay (shown on hover via CSS) -->
+    <div class="card__quick-add">
+      <button
+        class="btn-card btn-card--overlay"
+        type="button"
+        data-add-to-cart="${escapeHtml(p.code)}"
+        ${isConsult ? "disabled" : ""}
+        aria-label="Agregar al carrito"
+      >
+        ${IconCart}
+        ${isConsult ? "Consultar" : "Agregar al carrito"}
+      </button>
+    </div>
 
-        <div class="price" style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 12px;">
-          <div class="price__value ${p.active ? "" : "price__value--muted"}" style="font-weight: 700; font-size: 1.25rem;">
-            ${escapeHtml(price)}
-          </div>
-          <button
-            class="btn btn--primary"
-            type="button"
-            data-add-to-cart="${escapeHtml(p.code)}"
-            ${p.active ? "" : "disabled"}
-            style="position: relative; overflow: hidden;"
-          >
-            Agregar
-          </button>
-        </div>
+  </div>
 
-        <div class="card__footer" style="margin-top: 8px;">
-          <a class="btn btn--ghost btn--block card__detail-link" href="${escapeHtml(detailHref)}">
-            Ver detalle
-          </a>
-        </div>
-      </div>
-    </article>
-  `;
+  <div class="card__body">
+
+    <div class="badges">
+      <span class="badge badge--brand">${escapeHtml(p.category)}</span>
+      <span class="badge">${escapeHtml(p.brand)}</span>
+      ${p.rim ? `<span class="badge">${escapeHtml(p.rim)}</span>` : ""}
+    </div>
+
+    <a class="card__detail-link" href="${escapeHtml(detailHref)}">
+      <h3 class="card__title">${escapeHtml(p.description)}</h3>
+    </a>
+
+    <p class="card__meta">Cód. ${escapeHtml(p.code)}</p>
+
+    <div class="price">
+      <span class="price__value ${isConsult ? "price__value--muted" : ""}">${escapeHtml(price)}</span>
+    </div>
+
+    <div class="card__actions">
+      <button
+        class="btn-card"
+        type="button"
+        data-add-to-cart="${escapeHtml(p.code)}"
+        ${isConsult ? "disabled" : ""}
+      >
+        ${IconCart}
+        ${isConsult ? "Consultar precio" : "Agregar al carrito"}
+      </button>
+    </div>
+
+  </div>
+</article>`;
 }
 
-// Polyfill ligero para requestIdleCallback
+// ─── Polyfill ─────────────────────────────────────────────────────
 window.requestIdleCallback =
   window.requestIdleCallback ||
   function (cb) {
     const start = Date.now();
-    return setTimeout(function () {
-      cb({
-        didTimeout: false,
-        timeRemaining: function () {
-          return Math.max(0, 50 - (Date.now() - start));
-        },
-      });
-    }, 1);
+    return setTimeout(
+      () =>
+        cb({
+          didTimeout: false,
+          timeRemaining: () => Math.max(0, 50 - (Date.now() - start)),
+        }),
+      1,
+    );
   };
 
+// ─── Image slider per card ────────────────────────────────────────
 function setupCardSliders(root) {
-  const sliders = root.querySelectorAll("[data-slider]");
-
-  sliders.forEach((slider) => {
+  root.querySelectorAll("[data-slider]").forEach((slider) => {
     const dataEl = slider.querySelector(".card__slider-data");
     const imgEl = slider.querySelector("[data-slider-image]");
     const prevBtn = slider.querySelector("[data-slider-prev]");
@@ -244,164 +170,227 @@ function setupCardSliders(root) {
     if (!dataEl || !imgEl) return;
 
     let images = [];
-
     try {
       images = JSON.parse(dataEl.textContent.trim());
     } catch {
       images = [];
     }
-
     if (!Array.isArray(images) || images.length <= 1) return;
 
-    // Animación: Pre-carga silenciosa en background thread
+    // Preload in background
     requestIdleCallback(() => {
-      images.forEach((src, index) => {
-        if (index === 0) return;
-        const preloadImg = new Image();
-        preloadImg.src = src;
+      images.forEach((src, i) => {
+        if (i === 0) return;
+        const img = new Image();
+        img.src = src;
       });
     });
 
     let current = 0;
     let isAnimating = false;
 
-    // Animación: Transición cruzada (Crossfade) entre imágenes de la tarjeta
-    const renderSlide = () => {
-      if (isAnimating) return;
+    const go = (index) => {
+      if (isAnimating || index === current) return;
       isAnimating = true;
+      current = (index + images.length) % images.length;
 
-      imgEl.classList.add("is-transitioning");
+      imgEl.style.opacity = "0";
+      imgEl.style.transform = "scale(1.03)";
 
       setTimeout(() => {
         imgEl.src = images[current];
-
         imgEl.onload = () => {
           requestAnimationFrame(() => {
-            imgEl.classList.remove("is-transitioning");
+            imgEl.style.opacity = "1";
+            imgEl.style.transform = "scale(1)";
             isAnimating = false;
           });
         };
-
         imgEl.onerror = () => {
-          imgEl.classList.remove("is-transitioning");
           isAnimating = false;
         };
-      }, 150);
+      }, 140);
 
-      dotEls.forEach((dot, index) => {
-        dot.classList.toggle("is-active", index === current);
-      });
+      dotEls.forEach((dot, i) =>
+        dot.classList.toggle("is-active", i === current),
+      );
     };
 
-    prevBtn?.addEventListener("click", (e) => {
-      e.preventDefault(); // Previene comportamientos indeseados en el link padre si lo hubiera
-      current = (current - 1 + images.length) % images.length;
-      renderSlide();
-    });
+    // Apply transition style
+    imgEl.style.transition =
+      "opacity 0.25s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1)";
 
+    prevBtn?.addEventListener("click", (e) => {
+      e.preventDefault();
+      go(current - 1);
+    });
     nextBtn?.addEventListener("click", (e) => {
       e.preventDefault();
-      current = (current + 1) % images.length;
-      renderSlide();
+      go(current + 1);
     });
-
     dotEls.forEach((dot) => {
       dot.addEventListener("click", (e) => {
         e.preventDefault();
-        const targetIndex = Number(dot.dataset.index) || 0;
-        if (current === targetIndex) return;
-        current = targetIndex;
-        renderSlide();
+        go(Number(dot.dataset.index) || 0);
       });
     });
   });
 }
 
-// Animación: Scroll reveal dinámico usando IntersectionObserver
+// ─── Scroll reveal with stagger ──────────────────────────────────
 function setupCardScrollReveal(gridEl) {
   const cards = gridEl.querySelectorAll(".card");
   if (!cards.length) return;
 
-  const observer = new IntersectionObserver(
+  const obs = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // Obtenemos el index relativo para crear un efecto de cascada (stagger) en la misma fila
-          const rect = entry.target.getBoundingClientRect();
-          const column = Math.round(rect.left / rect.width);
-          const delay = column * 100; // 100ms por columna
-
-          entry.target.style.animationDelay = `${delay}ms`;
-          entry.target.classList.add("is-visible");
-          observer.unobserve(entry.target);
-        }
+        if (!entry.isIntersecting) return;
+        // Stagger by column position
+        const rect = entry.target.getBoundingClientRect();
+        const col = Math.max(0, Math.round(rect.left / (rect.width + 20)));
+        const delay = col * 55;
+        entry.target.style.transitionDelay = `${delay}ms`;
+        requestAnimationFrame(() => {
+          entry.target.style.opacity = "1";
+          entry.target.style.transform = "translateY(0)";
+        });
+        obs.unobserve(entry.target);
       });
     },
-    {
-      threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px",
-    },
+    { threshold: 0.08, rootMargin: "0px 0px -40px 0px" },
   );
 
-  cards.forEach((card) => observer.observe(card));
+  cards.forEach((card) => obs.observe(card));
 }
 
-// Animación: Efecto Ripple premium en los botones de "Agregar"
-function setupCardRipples(root) {
-  const addBtns = root.querySelectorAll(".btn--primary[data-add-to-cart]");
-
-  addBtns.forEach((btn) => {
+// ─── Ripple effect on add button ─────────────────────────────────
+function setupRipples(root) {
+  root.querySelectorAll(".btn-card[data-add-to-cart]").forEach((btn) => {
     btn.addEventListener("click", function (e) {
       if (this.disabled) return;
+
       const rect = this.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
+      const size = Math.max(rect.width, rect.height) * 2.2;
 
-      const circle = document.createElement("span");
-      circle.style.cssText = `
-        position: absolute;
-        top: ${y}px;
-        left: ${x}px;
-        width: 1px;
-        height: 1px;
-        background: rgba(255, 255, 255, 0.4);
-        border-radius: 50%;
-        transform: scale(1);
-        transition: transform 500ms cubic-bezier(0.4, 0, 0.2, 1), opacity 500ms ease-out;
-        pointer-events: none;
-      `;
-
-      this.appendChild(circle);
-
-      requestAnimationFrame(() => {
-        circle.style.transform = `scale(${Math.max(rect.width, rect.height) * 2.5})`;
-        circle.style.opacity = "0";
+      const ripple = document.createElement("span");
+      Object.assign(ripple.style, {
+        position: "absolute",
+        left: `${x - size / 2}px`,
+        top: `${y - size / 2}px`,
+        width: `${size}px`,
+        height: `${size}px`,
+        borderRadius: "50%",
+        background: "rgba(255,255,255,0.28)",
+        transform: "scale(0)",
+        transition:
+          "transform 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.5s ease",
+        pointerEvents: "none",
       });
 
-      setTimeout(() => circle.remove(), 500);
+      this.style.position = "relative";
+      this.style.overflow = "hidden";
+      this.appendChild(ripple);
+
+      requestAnimationFrame(() => {
+        ripple.style.transform = "scale(1)";
+        ripple.style.opacity = "0";
+      });
+
+      setTimeout(() => ripple.remove(), 520);
     });
   });
 }
 
-export function renderProducts(products, els) {
-  const count = products.length;
+// ─── Fly-to-cart trigger ──────────────────────────────────────────
+function setupFlyToCart(root) {
+  root.querySelectorAll(".btn-card[data-add-to-cart]").forEach((btn) => {
+    btn.addEventListener("click", function (e) {
+      if (this.disabled) return;
+      // Dispatch custom event so main.js can handle the animation
+      document.dispatchEvent(
+        new CustomEvent("fly-to-cart", {
+          detail: { sourceEl: this },
+        }),
+      );
+    });
+  });
+}
 
-  if (!count) {
-    els.productsGrid.innerHTML = "";
-    els.emptyState.hidden = false;
+// ─── Cart item template ───────────────────────────────────────────
+export function cartItemTemplate(item) {
+  const img =
+    item.image_url || item.image_urls?.[0] || "./assets/img/placeholder.jpg";
+  const price = item.active ? money.format(item.price * item.qty) : "A cotizar";
+
+  return `
+<div class="cart-item" data-code="${escapeHtml(item.code)}">
+  <div class="cart-item__img">
+    <img src="${escapeHtml(img)}" alt="${escapeHtml(item.description)}" loading="lazy" />
+  </div>
+  <div class="cart-item__top">
+    <p class="cart-item__name">${escapeHtml(item.description)}</p>
+    <p class="cart-item__meta">
+      ${escapeHtml(item.brand)}${item.rim ? ` · Rodado ${escapeHtml(item.rim)}` : ""}
+    </p>
+    <div class="cart-item__bottom">
+      <div class="qty">
+        <button class="qty__btn" type="button" data-qty-dec="${escapeHtml(item.code)}" aria-label="Quitar uno">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15"/>
+          </svg>
+        </button>
+        <span class="qty__value">${item.qty}</span>
+        <button class="qty__btn" type="button" data-qty-inc="${escapeHtml(item.code)}" aria-label="Agregar uno">
+          <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
+        </button>
+      </div>
+      <span class="cart-item__price">${escapeHtml(price)}</span>
+      <button class="cart-item__remove" type="button" data-remove="${escapeHtml(item.code)}" aria-label="Eliminar">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>`;
+}
+
+// ─── Empty cart template ──────────────────────────────────────────
+export function emptyCartTemplate() {
+  return `
+<div class="cart-empty">
+  <div class="cart-empty__icon">
+    <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+    </svg>
+  </div>
+  <p class="cart-empty__text">Tu carrito está vacío</p>
+  <p class="cart-empty__sub">Agregá productos para continuar</p>
+</div>`;
+}
+
+// ─── Main export ──────────────────────────────────────────────────
+export function renderProducts(products, els) {
+  if (els.emptyState && els.emptyState.hidden !== undefined) {
+    els.emptyState.hidden = true;
+  }
+
+  if (!products.length) {
+    if (els.productsGrid) els.productsGrid.innerHTML = "";
     return;
   }
 
-  // Animación: DOM Batching para evitar reflows costosos y renderizado suave
-  requestAnimationFrame(() => {
-    els.emptyState.hidden = true;
-
-    // Generación eficiente con Fragment / innerHTML en un solo paso
+  // Sacar el requestAnimationFrame — renderizar directo
+  if (els.productsGrid) {
     els.productsGrid.innerHTML = products.map(cardTemplate).join("");
-
-    // Inicialización de lógica visual y animaciones
     setupCardSliders(els.productsGrid);
     setupCardScrollReveal(els.productsGrid);
-    setupCardRipples(els.productsGrid);
-  });
+    setupRipples(els.productsGrid);
+    setupFlyToCart(els.productsGrid);
+  }
 }

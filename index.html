@@ -3,15 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
     <title>RS Accesorios | Premium Auto Parts</title>
-
     <link rel="icon" type="image/png" href="./assets/img/logo.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap"
       rel="stylesheet"
     />
 
@@ -21,48 +19,35 @@
   </head>
 
   <body>
-    <header class="header">
-      <div class="header__top">
+    <div class="cursor-glow" id="cursorGlow"></div>
+    <div class="noise-overlay" aria-hidden="true"></div>
+
+    <!-- ═══════════════ HEADER ══ -->
+    <header class="header" id="mainHeader">
+      <div class="header__main">
         <a href="/" class="brand" aria-label="Ir al inicio">
-          <div class="brand__img" style="width: 64px; height: 64px">
-            <img src="./assets/img/logo.png" alt="RS Accesorios Logo" />
+          <div class="brand__logo-wrap">
+            <img
+              src="./assets/img/logo.png"
+              alt="RS Accesorios"
+              class="brand__img"
+            />
+            <div class="brand__glow"></div>
           </div>
           <div class="brand__text">
-            <div class="brand__name">RS Accesorios</div>
-            <div class="brand__tagline">Premium Auto Parts</div>
+            <span class="brand__name"
+              >RS<span class="brand__accent">.</span></span
+            >
+            <span class="brand__tagline">Accesorios Premium</span>
           </div>
         </a>
 
-        <div class="searchbar">
-          <svg
-            class="searchbar__icon"
-            style="width: 18px; height: 18px; color: var(--color-text-muted)"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-          <input
-            id="q"
-            class="searchbar__input"
-            type="search"
-            placeholder="¿Qué estás buscando hoy?"
-            autocomplete="off"
-          />
-          <button
-            class="searchbar__btn"
-            id="searchBtn"
-            type="button"
-            aria-label="Buscar"
-          >
+        <div class="searchbar" id="searchbarWrap">
+          <div class="searchbar__inner">
             <svg
-              style="width: 20px; height: 20px"
+              class="searchbar__icon"
+              width="16"
+              height="16"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -71,104 +56,289 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
               />
             </svg>
-          </button>
+            <input
+              id="q"
+              class="searchbar__input"
+              type="search"
+              placeholder="Buscar productos, marcas, modelos…"
+              autocomplete="off"
+            />
+            <button
+              class="searchbar__btn"
+              id="searchBtn"
+              type="button"
+              aria-label="Buscar"
+            >
+              <svg
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14 5l7 7m0 0l-7 7m7-7H3"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <div class="actions">
+        <div class="header__actions">
           <button
             id="cartOpenBtn"
-            class="btn btn--primary"
+            class="cart-trigger"
             type="button"
             aria-label="Abrir carrito"
           >
-            <svg
-              style="width: 20px; height: 20px; margin-right: 6px"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-              />
-            </svg>
-            <span id="cartCount">0</span>
+            <span class="cart-trigger__icon">
+              <svg
+                width="22"
+                height="22"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"
+                />
+              </svg>
+              <span class="cart-trigger__badge" id="cartCount">0</span>
+            </span>
+            <span class="cart-trigger__label">Carrito</span>
+          </button>
+          <button
+            class="mobile-menu-btn"
+            id="mobileMenuBtn"
+            type="button"
+            aria-label="Menú"
+          >
+            <span></span><span></span><span></span>
           </button>
         </div>
       </div>
 
-      <nav class="nav" aria-label="Navegación de categorías">
+      <nav class="nav" aria-label="Categorías" id="mainNav">
         <div class="nav__inner">
           <div class="nav-categories" id="navCategories">
             <button
               id="categoriesToggle"
-              class="nav-categories__toggle"
+              class="nav__all-btn"
               type="button"
               aria-expanded="false"
               aria-controls="categoriesMenu"
             >
-              <span class="nav-categories__icon" aria-hidden="true">
-                <span></span><span></span><span></span>
-              </span>
-              <span>Explorar Categorías</span>
+              <svg
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+              Todas las categorías
+              <svg
+                class="nav__chevron"
+                width="14"
+                height="14"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2.5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                />
+              </svg>
             </button>
-
             <div id="categoriesMenu" class="nav-categories__menu" hidden>
               <div id="categoryNav" class="nav-categories__list"></div>
             </div>
+          </div>
+
+          <div class="nav__divider" aria-hidden="true"></div>
+
+          <div class="nav__quick-links">
+            <a href="#" class="nav__link" data-nav-category=""
+              >Todo el catálogo</a
+            >
+            <a href="#" class="nav__link" data-nav-category="ESPEJOS"
+              >Espejos</a
+            >
+            <a href="#" class="nav__link" data-nav-category="TAZAS"
+              >Tazas & Llantas</a
+            >
           </div>
         </div>
       </nav>
     </header>
 
+    <!-- ═══════════════ MAIN ══ -->
     <main>
-      <section class="hero">
+      <!-- HERO -->
+      <section class="hero" id="heroSection">
         <div class="hero__slider" id="heroSlider">
-          <div class="hero__slide hero__slide--active">
-            <img
-              src="./assets/img/hero-espejos.jpg"
-              alt="Espejos de alta calidad"
-              class="hero__img"
-            />
+          <!-- SLIDE 1 -->
+          <div class="hero__slide hero__slide--active" data-index="0">
+            <div class="hero__media">
+              <img
+                src="./assets/img/hero-espejos.jpg"
+                alt="Espejos de alta calidad"
+                class="hero__img"
+              />
+              <div class="hero__media-overlay"></div>
+            </div>
             <div class="hero__content">
-              <h1 class="hero__title">Visión clara,<br />diseño perfecto.</h1>
+              <div class="hero__eyebrow">
+                <span class="hero__eyebrow-dot"></span>
+                Espejos
+              </div>
+              <h1 class="hero__title">
+                Visión clara,<br />
+                <em class="hero__title-em">diseño perfecto.</em>
+              </h1>
               <p class="hero__text">
-                Encuentra espejos premium compatibles con los modelos más
-                exigentes del mercado.
+                Espejos premium compatibles con los modelos más exigentes del
+                mercado.
               </p>
+              <div class="hero__cta-group">
+                <button
+                  class="hero__cta hero__cta--primary"
+                  data-nav-category="ESPEJOS"
+                >
+                  Ver espejos
+                  <svg
+                    width="14"
+                    height="14"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                    />
+                  </svg>
+                </button>
+                <button class="hero__cta hero__cta--ghost" data-nav-category="">
+                  Todo el catálogo
+                </button>
+              </div>
+            </div>
+            <div class="hero__stats-strip">
+              <div class="hero__stat-item">
+                <span class="hero__stat-num">+200</span>
+                <span class="hero__stat-label">Modelos</span>
+              </div>
+              <div class="hero__stat-sep"></div>
+              <div class="hero__stat-item">
+                <span class="hero__stat-num">100%</span>
+                <span class="hero__stat-label">Calidad</span>
+              </div>
+              <div class="hero__stat-sep"></div>
+              <div class="hero__stat-item">
+                <span class="hero__stat-num">24h</span>
+                <span class="hero__stat-label">Respuesta</span>
+              </div>
             </div>
           </div>
 
-          <div class="hero__slide">
-            <img
-              src="./assets/img/hero-tazas.jpg"
-              alt="Tazas personalizadas"
-              class="hero__img"
-            />
+          <!-- SLIDE 2 -->
+          <div class="hero__slide" data-index="1">
+            <div class="hero__media">
+              <img
+                src="./assets/img/hero-tazas.jpg"
+                alt="Tazas y accesorios"
+                class="hero__img"
+              />
+              <div class="hero__media-overlay"></div>
+            </div>
             <div class="hero__content">
+              <div class="hero__eyebrow">
+                <span class="hero__eyebrow-dot"></span>
+                Tazas
+              </div>
               <h1 class="hero__title">
-                Detalles que<br />marcan la diferencia.
+                Detalles que<br />
+                <em class="hero__title-em">marcan la diferencia.</em>
               </h1>
               <p class="hero__text">
                 Tazas y accesorios diseñados para elevar la estética de tu
                 vehículo.
               </p>
+              <div class="hero__cta-group">
+                <button
+                  class="hero__cta hero__cta--primary"
+                  data-nav-category="TAZAS"
+                >
+                  Ver tazas & llantas
+                  <svg
+                    width="14"
+                    height="14"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"
+                    />
+                  </svg>
+                </button>
+                <button class="hero__cta hero__cta--ghost" data-nav-category="">
+                  Todo el catálogo
+                </button>
+              </div>
+            </div>
+            <div class="hero__stats-strip">
+              <div class="hero__stat-item">
+                <span class="hero__stat-num">+500</span>
+                <span class="hero__stat-label">Productos</span>
+              </div>
+              <div class="hero__stat-sep"></div>
+              <div class="hero__stat-item">
+                <span class="hero__stat-num">CABA</span>
+                <span class="hero__stat-label">Buenos Aires</span>
+              </div>
+              <div class="hero__stat-sep"></div>
+              <div class="hero__stat-item">
+                <span class="hero__stat-num">WA</span>
+                <span class="hero__stat-label">Cotización</span>
+              </div>
             </div>
           </div>
         </div>
 
+        <!-- CONTROLS -->
         <button
           class="hero__arrow hero__arrow--left"
           id="heroPrev"
           aria-label="Anterior"
         >
           <svg
-            style="width: 24px; height: 24px"
+            width="20"
+            height="20"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -187,7 +357,8 @@
           aria-label="Siguiente"
         >
           <svg
-            style="width: 24px; height: 24px"
+            width="20"
+            height="20"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -201,96 +372,351 @@
           </svg>
         </button>
 
-        <div class="hero__dots">
+        <div class="hero__progress-bar">
+          <div class="hero__progress-fill" id="heroProgress"></div>
+        </div>
+
+        <div class="hero__dots" role="tablist">
           <button
             class="hero__dot hero__dot--active"
-            aria-label="Ir a diapositiva 1"
+            role="tab"
+            aria-label="Diapositiva 1"
+            aria-selected="true"
           ></button>
-          <button class="hero__dot" aria-label="Ir a diapositiva 2"></button>
+          <button
+            class="hero__dot"
+            role="tab"
+            aria-label="Diapositiva 2"
+            aria-selected="false"
+          ></button>
+        </div>
+
+        <div class="hero__scroll-hint" aria-hidden="true">
+          <div class="hero__scroll-line"></div>
+          <span>scroll</span>
         </div>
       </section>
 
+      <!-- FEATURES STRIP -->
+      <section class="features-strip" aria-label="Beneficios">
+        <div class="features-strip__inner">
+          <div class="feature-chip reveal-item">
+            <div class="feature-chip__icon">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
+                />
+              </svg>
+            </div>
+            <div class="feature-chip__text">
+              <strong>Envío por zona</strong>
+              <span>Consulta disponibilidad</span>
+            </div>
+          </div>
+          <div class="feature-chip reveal-item">
+            <div class="feature-chip__icon">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
+                />
+              </svg>
+            </div>
+            <div class="feature-chip__text">
+              <strong>Garantía de calidad</strong>
+              <span>Productos certificados</span>
+            </div>
+          </div>
+          <div class="feature-chip reveal-item">
+            <div class="feature-chip__icon">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <div class="feature-chip__text">
+              <strong>Cotización gratis</strong>
+              <span>Respondemos rápido</span>
+            </div>
+          </div>
+          <div class="feature-chip reveal-item">
+            <div class="feature-chip__icon">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
+                />
+              </svg>
+            </div>
+            <div class="feature-chip__text">
+              <strong>Atención por WhatsApp</strong>
+              <span>Lunes a sábados</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CATALOG -->
       <section id="resultsSection" class="catalog">
         <aside id="catalogSidebar" class="catalog__sidebar" hidden>
           <div class="filters-box">
             <div class="filters-box__header">
-              <h3 class="filters-box__title">Filtros</h3>
+              <h3 class="filters-box__title">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"
+                  />
+                </svg>
+                Filtros
+              </h3>
               <button id="clearFiltersBtn" class="filters-box__clear">
-                Limpiar todo
+                <svg
+                  width="12"
+                  height="12"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+                Limpiar
               </button>
             </div>
-
             <div class="filter-group">
               <label class="filter-label" for="filterCategory">Categoría</label>
-              <select id="filterCategory" class="filter-select">
-                <option value="">Todas las categorías</option>
-              </select>
+              <div class="filter-select-wrap">
+                <select id="filterCategory" class="filter-select">
+                  <option value="">Todas las categorías</option>
+                </select>
+                <svg
+                  class="filter-select-arrow"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </div>
             </div>
-
             <div class="filter-group">
               <label class="filter-label" for="filterBrand">Marca</label>
-              <select id="filterBrand" class="filter-select">
-                <option value="">Todas las marcas</option>
-              </select>
+              <div class="filter-select-wrap">
+                <select id="filterBrand" class="filter-select">
+                  <option value="">Todas las marcas</option>
+                </select>
+                <svg
+                  class="filter-select-arrow"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </div>
             </div>
-
             <div class="filter-group">
               <label class="filter-label" for="filterModel">Modelo</label>
-              <select id="filterModel" class="filter-select" disabled>
-                <option value="">Seleccione marca primero</option>
-              </select>
+              <div class="filter-select-wrap">
+                <select id="filterModel" class="filter-select" disabled>
+                  <option value="">Seleccione marca primero</option>
+                </select>
+                <svg
+                  class="filter-select-arrow"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </div>
             </div>
-
             <div class="filter-group">
               <label class="filter-label" for="filterRim">Rodado</label>
-              <select id="filterRim" class="filter-select">
-                <option value="">Todos los rodados</option>
-              </select>
+              <div class="filter-select-wrap">
+                <select id="filterRim" class="filter-select">
+                  <option value="">Todos los rodados</option>
+                </select>
+                <svg
+                  class="filter-select-arrow"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                  />
+                </svg>
+              </div>
             </div>
           </div>
         </aside>
 
         <div class="catalog__content">
           <div class="results__bar">
-            <h2 id="resultsTitle" class="section-title">Nuestra Selección</h2>
-            <div id="resultsCount" class="card__meta">Cargando catálogo…</div>
+            <div class="results__bar-left">
+              <h2 id="resultsTitle" class="section-title">Nuestra Selección</h2>
+              <span id="resultsCount" class="results__count"
+                >Cargando catálogo…</span
+              >
+            </div>
+            <div class="results__bar-right">
+              <div
+                class="view-toggle"
+                id="viewToggle"
+                aria-label="Cambiar vista"
+              >
+                <button
+                  class="view-toggle__btn view-toggle__btn--active"
+                  data-view="grid"
+                  aria-label="Vista grilla"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"
+                    />
+                  </svg>
+                </button>
+                <button
+                  class="view-toggle__btn"
+                  data-view="list"
+                  aria-label="Vista lista"
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
-
           <div id="productsGrid" class="grid" aria-live="polite"></div>
           <div id="pagination" class="pagination"></div>
-
           <div id="emptyState" class="empty" hidden>
-            <svg
-              style="
-                width: 48px;
-                height: 48px;
-                margin: 0 auto 16px;
-                color: var(--neutral-200);
-              "
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              stroke-width="1.5"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <h3 class="empty__title">No encontramos resultados</h3>
+            <div class="empty__icon">
+              <svg
+                width="48"
+                height="48"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 15.75l-2.489-2.489m0 0a3.375 3.375 0 10-4.773-4.773 3.375 3.375 0 004.774 4.774zM21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+            <h3 class="empty__title">Sin resultados</h3>
             <p class="empty__text">
-              Intenta ajustar los filtros o usar términos de búsqueda
-              diferentes.
+              Ajustá los filtros o probá con otros términos de búsqueda.
             </p>
+            <button class="empty__reset" id="emptyReset">
+              Ver todo el catálogo
+            </button>
           </div>
         </div>
       </section>
     </main>
 
+    <!-- ═══════════════ CART DRAWER ══ -->
     <aside id="cartDrawer" class="drawer" aria-hidden="true">
       <div class="drawer__overlay" id="cartOverlay"></div>
-
       <div
         class="drawer__panel"
         role="dialog"
@@ -298,9 +724,27 @@
         aria-label="Tu Carrito"
       >
         <div class="drawer__header">
-          <div>
-            <h2 class="drawer__title">Tu Carrito</h2>
-            <p class="card__meta">Revisa tu pedido antes de enviarlo.</p>
+          <div class="drawer__header-left">
+            <div class="drawer__header-icon">
+              <svg
+                width="18"
+                height="18"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="1.8"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h2 class="drawer__title">Tu Carrito</h2>
+              <p class="drawer__subtitle">Revisá tu pedido antes de enviar</p>
+            </div>
           </div>
           <button
             id="cartCloseBtn"
@@ -309,7 +753,8 @@
             aria-label="Cerrar carrito"
           >
             <svg
-              style="width: 20px; height: 20px"
+              width="18"
+              height="18"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -323,37 +768,24 @@
             </svg>
           </button>
         </div>
-
         <div id="cartItems" class="cart"></div>
-
         <div class="drawer__footer">
           <div class="totals">
             <div class="totals__row">
-              <span>Total estimado</span>
-              <strong id="cartTotal" class="price__value">$0</strong>
+              <span class="totals__label">Total estimado</span>
+              <strong id="cartTotal" class="totals__value">$0</strong>
             </div>
-            <div class="card__meta" style="margin-top: 8px">
-              * Los ítems sin precio definido se cotizarán por WhatsApp.
-            </div>
+            <p class="totals__note">
+              * Ítems sin precio se cotizarán por WhatsApp
+            </p>
           </div>
-
           <button
             id="checkoutBtn"
-            class="btn-card"
+            class="checkout-btn"
             type="button"
             data-phone="5491159075944"
           >
-            <svg
-              style="
-                width: 18px;
-                height: 18px;
-                vertical-align: text-bottom;
-                margin-right: 6px;
-                display: inline-block;
-              "
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
               <path
                 d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"
               />
@@ -364,49 +796,111 @@
       </div>
     </aside>
 
+    <div class="fly-item" id="flyItem" aria-hidden="true"></div>
+
+    <!-- ═══════════════ FOOTER ══ -->
     <footer class="footer">
+      <div class="footer__glow" aria-hidden="true"></div>
       <div class="footer__inner">
         <div class="footer__brand">
-          <img
-            src="./assets/img/logo.png"
-            alt="RS Accesorios"
-            class="footer__logo"
-            style="width: 56px; height: 56px"
-          />
-          <p class="card__meta" style="max-width: 250px">
+          <div class="footer__logo-wrap">
+            <img
+              src="./assets/img/logo.png"
+              alt="RS Accesorios"
+              class="footer__logo"
+            />
+          </div>
+          <p class="footer__brand-desc">
             Tu destino premium para accesorios, repuestos y detalles que elevan
             tu vehículo al siguiente nivel.
           </p>
+          <a href="https://wa.me/5491159075944" class="footer__wa-btn">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <path
+                d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"
+              />
+            </svg>
+            Contactar ahora
+          </a>
         </div>
-
-        <div class="footer__contact">
-          <h4 class="footer__title">Contacto Directo</h4>
-          <div class="footer__links">
-            <a href="https://wa.me/5491159075944">WhatsApp: +54 11 5907 5944</a>
-            <a href="mailto:ventas@rsaccesorios.com">ventas@rsaccesorios.com</a>
-            <span
-              style="
-                display: block;
-                color: var(--color-text-muted);
-                margin-top: 4px;
-                font-size: var(--font-size-sm);
-              "
-              >Buenos Aires, Argentina</span
+        <div class="footer__col">
+          <h4 class="footer__col-title">Catálogo</h4>
+          <nav class="footer__nav">
+            <a href="#" class="footer__link" data-nav-category=""
+              >Todo el catálogo</a
             >
-          </div>
+            <a href="#" class="footer__link" data-nav-category="ESPEJOS"
+              >Espejos Premium</a
+            >
+            <a href="#" class="footer__link" data-nav-category="TAZAS"
+              >Tazas y Llantas</a
+            >
+            <a href="#" class="footer__link" data-nav-category="OPTICAS"
+              >Iluminación y Ópticas</a
+            >
+          </nav>
         </div>
-
-        <div class="footer__links">
-          <h4 class="footer__title">Catálogo Rápido</h4>
-          <a href="#" data-nav-category="">Ver Todo</a>
-          <a href="#" data-nav-category="ESPEJOS">Espejos Premium</a>
-          <a href="#" data-nav-category="TAZAS">Tazas y Llantas</a>
-          <a href="#" data-nav-category="OPTICAS">Iluminación y Ópticas</a>
+        <div class="footer__col">
+          <h4 class="footer__col-title">Contacto</h4>
+          <nav class="footer__nav">
+            <a href="https://wa.me/5491159075944" class="footer__link">
+              <svg
+                width="14"
+                height="14"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"
+                />
+              </svg>
+              +54 11 5907 5944
+            </a>
+            <a href="mailto:ventas@rsaccesorios.com" class="footer__link">
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"
+                />
+              </svg>
+              ventas@rsaccesorios.com
+            </a>
+            <span class="footer__link footer__link--static">
+              <svg
+                width="14"
+                height="14"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"
+                />
+              </svg>
+              Buenos Aires, Argentina
+            </span>
+          </nav>
         </div>
       </div>
-
       <div class="footer__bottom">
-        © 2026 RS Accesorios. Diseño Premium. Todos los derechos reservados.
+        <span>© 2026 RS Accesorios · Todos los derechos reservados</span>
+        <span class="footer__bottom-tag">Diseño Premium · Buenos Aires</span>
       </div>
     </footer>
 
