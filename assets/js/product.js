@@ -91,7 +91,7 @@ function getRelatedProducts(products, product) {
   );
 })();
 
-// ─── Skeleton loader ─────────────────────────────────────────────
+// ─── Skeleton loader ──────────────────────────────────────────────
 function renderSkeleton() {
   if (!els.productDetail) return;
   els.productDetail.innerHTML = `
@@ -157,6 +157,11 @@ function renderProductDetail(product) {
     : "Consultar precio";
   const isConsult = !product.active;
 
+  // Usar detalle como título principal, fallback a description
+  const titulo = product.detalle || product.description || "";
+  // Usar descripcion como texto largo, fallback a detalle
+  const descripcionLarga = product.descripcion || product.detalle || "";
+
   if (!els.productDetail) return;
 
   els.productDetail.innerHTML = `
@@ -166,7 +171,7 @@ function renderProductDetail(product) {
         <img
           class="product-detail__main-image"
           src="${escapeHtml(images[0])}"
-          alt="${escapeHtml(product.description)}"
+          alt="${escapeHtml(titulo)}"
           data-product-main-image
           loading="eager"
         />
@@ -188,7 +193,6 @@ function renderProductDetail(product) {
             : ""
         }
 
-        <!-- Zoom hint -->
         <div class="product-detail__zoom-hint" aria-hidden="true">
           <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"/>
@@ -211,7 +215,7 @@ function renderProductDetail(product) {
               data-index="${i}"
               aria-label="Ver imagen ${i + 1}"
             >
-              <img src="${escapeHtml(img)}" alt="${escapeHtml(product.description)} — imagen ${i + 1}" loading="lazy" />
+              <img src="${escapeHtml(img)}" alt="${escapeHtml(titulo)} — imagen ${i + 1}" loading="lazy" />
             </button>
           `,
             )
@@ -226,31 +230,29 @@ function renderProductDetail(product) {
 
     <div class="product-detail__info">
 
-      <div class="product-detail__eyebrow">
-        <span class="topbar-dot" style="width:7px;height:7px;background:var(--brand-500)"></span>
-        ${escapeHtml(product.category)}
-      </div>
+      
 
-      <h1 class="product-detail__title">${escapeHtml(product.description)}</h1>
+      <!-- Título principal: columna "detalle" del Sheet -->
+      <h1 class="product-detail__title">${escapeHtml(titulo)}</h1>
 
-      <div class="badges" style="margin-top:var(--space-1)">
-        <span class="badge badge--brand">${escapeHtml(product.category)}</span>
-        <span class="badge">${escapeHtml(product.brand)}</span>
-        ${product.rim ? `<span class="badge">Rod. ${escapeHtml(product.rim)}</span>` : ""}
-      </div>
+    <div class="badges" style="margin-top:var(--space-1)">
+  <span class="badge">${escapeHtml(product.brand)}</span>
+  ${product.rim ? `<span class="badge">Rod. ${escapeHtml(product.rim)}</span>` : ""}
+</div>
 
       <div class="product-detail__price">
         <span class="product-detail__price-main ${isConsult ? "price__value--muted" : ""}">
           ${escapeHtml(price)}
         </span>
-        ${isConsult ? "" : `<span class="product-detail__price--muted" style="font-size:var(--font-size-sm)">IVA incluido</span>`}
+        ${isConsult ? "" : `<span class="product-detail__price--muted" style="font-size:var(--font-size-sm)"></span>`}
       </div>
 
+      <!-- Descripción larga: columna "descripcion" del Sheet -->
       ${
-        product.detail
+        descripcionLarga
           ? `
         <div class="product-detail__description">
-          ${escapeHtml(product.detail).replace(/\n/g, "<br>")}
+          ${escapeHtml(descripcionLarga).replace(/\n/g, "<br>")}
         </div>
       `
           : ""
@@ -304,30 +306,32 @@ function renderProductDetail(product) {
       </div>
 
       <div class="product-detail__actions">
-        <button
-          class="product-detail__add"
-          type="button"
-          data-add-to-cart="${escapeHtml(product.code)}"
-          ${isConsult ? "disabled" : ""}
-        >
-          <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
-          </svg>
-          ${isConsult ? "Consultar precio" : "Agregar al carrito"}
-        </button>
+  <button
+    class="product-detail__add"
+    type="button"
+    data-add-to-cart="${escapeHtml(product.code)}"
+    ${isConsult ? "disabled" : ""}
+  >
+    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007z"/>
+    </svg>
+    ${isConsult ? "Consultar precio" : "Agregar al carrito"}
+  </button>
 
-        <a class="product-detail__wa" href="https://wa.me/5491159075944?text=${encodeURIComponent(`Hola! Me interesa el producto: ${product.description} (Cód: ${product.code})`)}">
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-          </svg>
-          Consultar por WhatsApp
-        </a>
-      </div>
+  
+   <a class="product-detail__wa"
+    href="${escapeHtml(`https://wa.me/5491159075944?text=${encodeURIComponent("Hola! Me interesa el producto: " + titulo + " (Cód: " + product.code + ")")}`)}"
+  >
+    <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+    </svg>
+    Consultar por WhatsApp
+  </a>
+</div>
 
     </div>
   `;
 
-  // Stagger animate elements in
   animateProductDetail();
   setupProductGallery();
   setupAddButtonFeedback();
@@ -352,7 +356,6 @@ function animateProductDetail() {
     );
   });
 
-  // Stagger child elements inside info
   const children = info.querySelectorAll(
     ".product-detail__eyebrow, .product-detail__title, .badges, .product-detail__price, .product-detail__description, .product-detail__meta-grid, .product-detail__trust, .product-detail__actions",
   );
@@ -391,7 +394,6 @@ function setupProductGallery() {
   }
   if (!Array.isArray(images) || !images.length) return;
 
-  // Preload
   requestIdleCallback(() => {
     images.forEach((src, i) => {
       if (i === 0) return;
@@ -437,7 +439,6 @@ function setupProductGallery() {
     });
   }
 
-  // Apply transitions
   mainImg.style.transition =
     "opacity 0.3s var(--ease-out), transform 0.4s var(--ease-out)";
 
@@ -448,7 +449,6 @@ function setupProductGallery() {
     thumb.addEventListener("click", () => go(Number(thumb.dataset.index) || 0));
   });
 
-  // Touch swipe on main image
   let touchStartX = 0;
   mainWrap?.addEventListener(
     "touchstart",
@@ -466,7 +466,6 @@ function setupProductGallery() {
     { passive: true },
   );
 
-  // Keyboard navigation
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") go(current - 1);
     if (e.key === "ArrowRight") go(current + 1);
@@ -488,9 +487,7 @@ function setupAddButtonFeedback() {
       ¡Agregado al carrito!
     `;
     this.style.background = "var(--color-success)";
-
     if (navigator?.vibrate) navigator.vibrate(45);
-
     setTimeout(() => {
       this.innerHTML = original;
       this.style.background = "";
@@ -533,7 +530,6 @@ function injectProductPageStyles() {
   const s = document.createElement("style");
   s.id = "product-page-styles";
   s.textContent = `
-    /* Nav back link */
     .nav__back-link {
       display: inline-flex;
       align-items: center;
@@ -551,17 +547,10 @@ function injectProductPageStyles() {
       color: #fff;
       background: rgba(255,255,255,0.1);
     }
-
-    /* Searchbar disabled state */
     .searchbar--disabled .searchbar__inner {
       opacity: 0.55;
       cursor: default;
     }
-    .searchbar--disabled .searchbar__btn {
-      text-decoration: none;
-    }
-
-    /* Zoom hint */
     .product-detail__zoom-hint {
       position: absolute;
       bottom: var(--space-3);
@@ -584,8 +573,6 @@ function injectProductPageStyles() {
     .product-detail__main-image-wrap:hover .product-detail__zoom-hint {
       opacity: 1;
     }
-
-    /* Trust strip */
     .product-detail__trust {
       display: flex;
       flex-wrap: wrap;
@@ -605,8 +592,6 @@ function injectProductPageStyles() {
       background: var(--color-surface-2);
       border: 1px solid var(--color-border-subtle);
     }
-
-    /* Not found / error state */
     .product-not-found {
       display: flex;
       flex-direction: column;
@@ -678,7 +663,7 @@ async function boot() {
               </svg>
             </div>
             <h1 class="product-not-found__title">Producto no encontrado</h1>
-            <p class="product-not-found__text">No pudimos encontrar este producto en nuestro catálogo. Puede que haya sido removido o que el enlace sea incorrecto.</p>
+            <p class="product-not-found__text">No pudimos encontrar este producto. Puede que haya sido removido o que el enlace sea incorrecto.</p>
             <a href="./index.html" class="product-not-found__btn">
               <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
@@ -692,10 +677,10 @@ async function boot() {
       return;
     }
 
-    // Update page meta
-    document.title = `${product.description} | RS Accesorios`;
-    if (els.breadcrumbProduct)
-      els.breadcrumbProduct.textContent = product.description;
+    // Título de pestaña y breadcrumb usan detalle si existe
+    const tituloMeta = product.detalle || product.description;
+    document.title = `${tituloMeta} | RS Accesorios`;
+    if (els.breadcrumbProduct) els.breadcrumbProduct.textContent = tituloMeta;
 
     renderProductDetail(product);
 
@@ -709,9 +694,8 @@ async function boot() {
 
     setupRelatedReveal();
 
-    // Fly to cart on product page too
+    // Fly to cart
     document.addEventListener("fly-to-cart", (e) => {
-      // Re-use same fly element defined in product.html
       const flyItem = document.getElementById("flyItem");
       const cartIcon = document.querySelector(".cart-trigger__icon");
       if (!flyItem || !cartIcon) return;

@@ -47,6 +47,9 @@ function cardTemplate(p) {
   const detailHref = `./product.html?code=${encodeURIComponent(p.code)}`;
   const isConsult = !p.active;
 
+  // Usar título descriptivo si existe, sino fallback a description
+  const titulo = p.detalle || p.descripcion || "";
+
   return `
 <article class="card" data-code="${escapeHtml(p.code)}">
 
@@ -56,7 +59,7 @@ function cardTemplate(p) {
       <div class="card__img">
         <img
           src="${escapeHtml(images[0])}"
-          alt="${escapeHtml(p.description)}"
+          alt="${escapeHtml(titulo)}"
           loading="lazy"
           data-slider-image
         />
@@ -93,41 +96,23 @@ function cardTemplate(p) {
 
     <script type="application/json" class="card__slider-data">${JSON.stringify(images)}</script>
 
-    <!-- Quick add overlay (shown on hover via CSS) -->
-    <div class="card__quick-add">
-      <button
-        class="btn-card btn-card--overlay"
-        type="button"
-        data-add-to-cart="${escapeHtml(p.code)}"
-        ${isConsult ? "disabled" : ""}
-        aria-label="Agregar al carrito"
-      >
-        ${IconCart}
-        ${isConsult ? "Consultar" : "Agregar al carrito"}
-      </button>
-    </div>
-
   </div>
 
   <div class="card__body">
 
-    <div class="badges">
-      <span class="badge badge--brand">${escapeHtml(p.category)}</span>
-      <span class="badge">${escapeHtml(p.brand)}</span>
-      ${p.rim ? `<span class="badge">${escapeHtml(p.rim)}</span>` : ""}
-    </div>
-
     <a class="card__detail-link" href="${escapeHtml(detailHref)}">
-      <h3 class="card__title">${escapeHtml(p.description)}</h3>
+      <h3 class="card__title">${escapeHtml(titulo)}</h3>
     </a>
-
-    <p class="card__meta">Cód. ${escapeHtml(p.code)}</p>
 
     <div class="price">
       <span class="price__value ${isConsult ? "price__value--muted" : ""}">${escapeHtml(price)}</span>
     </div>
 
     <div class="card__actions">
+      <a class="btn-card btn-card--ghost" href="${escapeHtml(detailHref)}">
+        ${IconEye}
+        Ver detalle
+      </a>
       <button
         class="btn-card"
         type="button"
@@ -135,7 +120,7 @@ function cardTemplate(p) {
         ${isConsult ? "disabled" : ""}
       >
         ${IconCart}
-        ${isConsult ? "Consultar precio" : "Agregar al carrito"}
+        ${isConsult ? "Consultar" : "Agregar"}
       </button>
     </div>
 
