@@ -47,8 +47,7 @@
           </div>
         </a>
 
-        <!-- Search disabled on product page -->
-        <div class="searchbar searchbar--disabled" aria-hidden="true">
+        <form class="searchbar" action="./index.html" method="get">
           <div class="searchbar__inner">
             <svg
               class="searchbar__icon"
@@ -66,17 +65,14 @@
               />
             </svg>
             <input
+              id="q"
+              name="q"
               class="searchbar__input"
               type="search"
-              placeholder="Buscá en el catálogo…"
-              disabled
-              tabindex="-1"
+              placeholder="Buscar productos, marcas, modelos…"
+              autocomplete="off"
             />
-            <a
-              href="./index.html"
-              class="searchbar__btn"
-              aria-label="Ir al catálogo"
-            >
+            <button class="searchbar__btn" type="submit" aria-label="Buscar">
               <svg
                 width="16"
                 height="16"
@@ -91,9 +87,9 @@
                   d="M14 5l7 7m0 0l-7 7m7-7H3"
                 />
               </svg>
-            </a>
+            </button>
           </div>
-        </div>
+        </form>
 
         <div class="header__actions">
           <button

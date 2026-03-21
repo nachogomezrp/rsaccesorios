@@ -897,5 +897,10 @@ async function boot() {
     }
   }
 }
-
+// Leer query param ?q= si viene desde product.html
+const urlParams = new URLSearchParams(window.location.search);
+const qFromUrl = urlParams.get("q");
+if (qFromUrl && els.q) {
+  els.q.value = qFromUrl;
+}
 boot();
