@@ -1542,7 +1542,7 @@ main {
   position: relative;
   width: 100%;
   aspect-ratio: 3 / 3.2;
-  background: var(--color-surface-2);
+  background: #ffffff;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -1561,8 +1561,7 @@ main {
   object-fit: contain;
   object-position: center center;
   padding: var(--space-3);
-  display: block;
-  margin: auto;
+  background: #ffffff;
   transition: transform 0.7s var(--ease-smooth);
 }
 .card:hover .card__img img {
