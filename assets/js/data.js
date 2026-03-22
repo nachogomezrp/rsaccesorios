@@ -120,7 +120,7 @@ function csvToProducts(csvText) {
       const active = isActiveRaw === "1" || isActiveRaw === "true";
 
       const years = parseYears(description);
-      const rim = parseRim(description);
+      const rim = category === "TAZAS" ? parseRim(description) : "";
 
       return {
         id,

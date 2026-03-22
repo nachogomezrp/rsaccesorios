@@ -49,7 +49,9 @@ function formatCategoryLabel(cat) {
     ESPEJOS: "Espejos",
     TAZAS: "Tazas",
     OPTICAS: "Ópticas",
-    VIDRIOS: "Vidrios",
+    FAROS: "Faros",
+    RADIADORES: "Radiadores",
+    DEFLECTORES: "Deflectores",
   };
   return map[cat] || (cat ? cat.charAt(0) + cat.slice(1).toLowerCase() : "");
 }
