@@ -2275,14 +2275,16 @@ main {
   border-radius: var(--radius-2xl);
   overflow: hidden;
   aspect-ratio: 1 / 1;
-  background: var(--color-surface-2);
+  background: #ffffff;
   cursor: zoom-in;
 }
 .product-detail__main-image {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background: var(--color-surface-2);
+  object-position: center center;
+  padding: var(--space-4);
+  background: #ffffff;
   transition: transform var(--duration-slower) var(--ease-smooth);
 }
 .product-detail__main-image-wrap:hover .product-detail__main-image {
@@ -2339,9 +2341,8 @@ main {
   overflow: hidden;
   border: 2px solid transparent;
   cursor: pointer;
-  transition:
-    border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
+  background: #ffffff;
+  transition: ...;
 }
 .product-detail__thumb img {
   width: 100%;
