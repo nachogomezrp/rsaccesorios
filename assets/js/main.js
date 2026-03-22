@@ -39,9 +39,24 @@ function normalizeText(value) {
 }
 
 function getFeaturedProducts(products) {
-  const espejos = products.filter((p) => p.category === "ESPEJOS").slice(0, 4);
-  const tazas = products.filter((p) => p.category === "TAZAS").slice(0, 4);
-  return [...espejos, ...tazas];
+  const espejos = products.filter((p) => p.category === "ESPEJOS").slice(0, 2);
+  const tazas = products.filter((p) => p.category === "TAZAS").slice(0, 2);
+  const opticas = products.filter((p) => p.category === "OPTICAS").slice(0, 2);
+  const faros = products.filter((p) => p.category === "FAROS").slice(0, 2);
+  const radiadores = products
+    .filter((p) => p.category === "RADIADORES")
+    .slice(0, 1);
+  const deflectores = products
+    .filter((p) => p.category === "DEFLECTORES")
+    .slice(0, 1);
+  return [
+    ...espejos,
+    ...tazas,
+    ...opticas,
+    ...faros,
+    ...radiadores,
+    ...deflectores,
+  ];
 }
 
 function formatCategoryLabel(cat) {
