@@ -19,13 +19,14 @@ const els = {
   catalogSidebar: document.getElementById("catalogSidebar"),
   clearFiltersBtn: document.getElementById("clearFiltersBtn"),
   emptyReset: document.getElementById("emptyReset"),
+  sortSelect: document.getElementById("sortSelect"),
 };
-
 let state = {
   products: [],
   category: "",
   currentPage: 1,
   pageSize: 16,
+  sort: "",
   filters: { brand: "", model: "", rim: "" },
 };
 
@@ -522,9 +523,11 @@ function updateModelFilter() {
 function clearSidebarFilters() {
   state.category = "";
   state.filters = { brand: "", model: "", rim: "" };
+  state.sort = "";
   if (els.filterCategory) els.filterCategory.value = "";
   if (els.filterBrand) els.filterBrand.value = "";
   if (els.filterRim) els.filterRim.value = "";
+  if (els.sortSelect) els.sortSelect.value = "";
   if (els.filterModel) {
     els.filterModel.innerHTML = `<option value="">Seleccione marca primero</option>`;
     els.filterModel.disabled = true;
@@ -581,10 +584,6 @@ function setActiveNav(category) {
       btn.classList.toggle("is-active", cat === category);
     });
   if (els.filterCategory) els.filterCategory.value = category || "";
-  const filterRimGroup = els.filterRim?.closest(".filter-group");
-  if (filterRimGroup) {
-    filterRimGroup.hidden = category !== "TAZAS";
-  }
 }
 
 // ─── Pagination ───────────────────────────────────────────────────
@@ -671,10 +670,41 @@ function updateCatalogUI({ isHomeView, totalItems }) {
       );
     }
   }
-  const filterRimGroup = els.filterRim?.closest(".filter-group");
-  if (filterRimGroup) {
-    filterRimGroup.hidden = state.category !== "TAZAS";
+}
+function sortProducts(products, sort) {
+  const arr = [...products];
+
+  switch (sort) {
+    case "price-asc":
+      arr.sort((a, b) => (a.price || 0) - (b.price || 0));
+      break;
+
+    case "price-desc":
+      arr.sort((a, b) => (b.price || 0) - (a.price || 0));
+      break;
+
+    case "name-asc":
+      arr.sort((a, b) =>
+        String(a.detalle || a.description || "").localeCompare(
+          String(b.detalle || b.description || ""),
+          "es",
+          { sensitivity: "base" },
+        ),
+      );
+      break;
+
+    case "name-desc":
+      arr.sort((a, b) =>
+        String(b.detalle || b.description || "").localeCompare(
+          String(a.detalle || a.description || ""),
+          "es",
+          { sensitivity: "base" },
+        ),
+      );
+      break;
   }
+
+  return arr;
 }
 
 // ─── Apply filters & render ───────────────────────────────────────
@@ -703,12 +733,14 @@ function apply() {
     return true;
   });
 
-  const totalItems = filtered.length;
+  const sorted = sortProducts(filtered, state.sort);
+
+  const totalItems = sorted.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
   if (state.currentPage > totalPages) state.currentPage = 1;
 
   const start = (state.currentPage - 1) * state.pageSize;
-  const paginated = filtered.slice(start, start + state.pageSize);
+  const paginated = sorted.slice(start, start + state.pageSize);
 
   // Síncronos — sin RAF, sin setTimeout
   updateCatalogUI({ isHomeView, totalItems });
@@ -868,6 +900,11 @@ async function boot() {
       state.currentPage = 1;
       apply();
     });
+    els.sortSelect?.addEventListener("change", () => {
+      state.sort = els.sortSelect.value;
+      state.currentPage = 1;
+      apply();
+    });
 
     els.clearFiltersBtn?.addEventListener("click", () => {
       clearSidebarFilters();
@@ -924,16 +961,8 @@ async function boot() {
 }
 // Leer query param ?q= si viene desde product.html
 const urlParams = new URLSearchParams(window.location.search);
-
 const qFromUrl = urlParams.get("q");
-const categoryFromUrl = urlParams.get("category");
-
 if (qFromUrl && els.q) {
   els.q.value = qFromUrl;
 }
-
-if (categoryFromUrl) {
-  state.category = categoryFromUrl.toUpperCase();
-}
-
 boot();
