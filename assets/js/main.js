@@ -924,8 +924,16 @@ async function boot() {
 }
 // Leer query param ?q= si viene desde product.html
 const urlParams = new URLSearchParams(window.location.search);
+
 const qFromUrl = urlParams.get("q");
+const categoryFromUrl = urlParams.get("category");
+
 if (qFromUrl && els.q) {
   els.q.value = qFromUrl;
 }
+
+if (categoryFromUrl) {
+  state.category = categoryFromUrl.toUpperCase();
+}
+
 boot();

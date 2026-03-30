@@ -438,8 +438,17 @@ function setupProductGallery() {
   mainImg.style.transition =
     "opacity 0.3s var(--ease-out), transform 0.4s var(--ease-out)";
 
-  prevBtn?.addEventListener("click", () => go(current - 1));
-  nextBtn?.addEventListener("click", () => go(current + 1));
+  prevBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    go(current - 1);
+  });
+
+  nextBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    go(current + 1);
+  });
 
   thumbEls.forEach((thumb) => {
     thumb.addEventListener("click", () => go(Number(thumb.dataset.index) || 0));
@@ -468,7 +477,9 @@ function setupProductGallery() {
   });
 
   // ── Zoom al click en imagen principal ──
-  mainWrap?.addEventListener("click", () => {
+  mainWrap?.addEventListener("click", (e) => {
+    if (e.target.closest("[data-product-prev]")) return;
+    if (e.target.closest("[data-product-next]")) return;
     const src = mainImg.src;
     if (!src) return;
 
