@@ -581,6 +581,10 @@ function setActiveNav(category) {
       btn.classList.toggle("is-active", cat === category);
     });
   if (els.filterCategory) els.filterCategory.value = category || "";
+  const filterRimGroup = els.filterRim?.closest(".filter-group");
+  if (filterRimGroup) {
+    filterRimGroup.hidden = category !== "TAZAS";
+  }
 }
 
 // ─── Pagination ───────────────────────────────────────────────────
@@ -666,6 +670,10 @@ function updateCatalogUI({ isHomeView, totalItems }) {
         },
       );
     }
+  }
+  const filterRimGroup = els.filterRim?.closest(".filter-group");
+  if (filterRimGroup) {
+    filterRimGroup.hidden = state.category !== "TAZAS";
   }
 }
 
