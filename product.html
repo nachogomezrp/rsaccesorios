@@ -367,7 +367,7 @@
     <!-- FLY TO CART -->
     <div class="fly-item" id="flyItem" aria-hidden="true"></div>
 
-    <!-- ═══════════════════════════════════════ FOOTER ══ -->
+    <!-- ═══════════════ FOOTER ══ -->
     <footer class="footer">
       <div class="footer__glow" aria-hidden="true"></div>
       <div class="footer__inner">
@@ -392,19 +392,50 @@
             Contactar ahora
           </a>
         </div>
-
         <div class="footer__col">
           <h4 class="footer__col-title">Catálogo</h4>
           <nav class="footer__nav">
-            <a href="./index.html" class="footer__link">Todo el catálogo</a>
-            <a href="./index.html" class="footer__link">Espejos Premium</a>
-            <a href="./index.html" class="footer__link">Tazas</a>
-            <a href="./index.html" class="footer__link"
-              >Iluminación y Ópticas</a
+            <a href="./index.html" class="footer__link" data-nav-category=""
+              >Todo el catálogo</a
+            >
+            <a
+              href="./index.html?category=ESPEJOS"
+              class="footer__link"
+              data-nav-category="ESPEJOS"
+              >Espejos</a
+            >
+            <a
+              href="./index.html?category=TAZAS"
+              class="footer__link"
+              data-nav-category="TAZAS"
+              >Tazas</a
+            >
+            <a
+              href="./index.html?category=OPTICAS"
+              class="footer__link"
+              data-nav-category="OPTICAS"
+              >Ópticas</a
+            >
+            <a
+              href="./index.html?category=FAROS"
+              class="footer__link"
+              data-nav-category="FAROS"
+              >Faros</a
+            >
+            <a
+              href="./index.html?category=RADIADORES"
+              class="footer__link"
+              data-nav-category="RADIADORES"
+              >Radiadores</a
+            >
+            <a
+              href="./index.html?category=DEFLECTORES"
+              class="footer__link"
+              data-nav-category="DEFLECTORES"
+              >Deflectores</a
             >
           </nav>
         </div>
-
         <div class="footer__col">
           <h4 class="footer__col-title">Contacto</h4>
           <nav class="footer__nav">
@@ -421,10 +452,7 @@
               </svg>
               +54 11 3189 8284
             </a>
-            <a
-              href="mailto:russofernandez@rsaccesorios.com"
-              class="footer__link"
-            >
+            <a href="mailto:ventas@rsaccesorios.com" class="footer__link">
               <svg
                 width="14"
                 height="14"
@@ -466,10 +494,11 @@
           </nav>
         </div>
       </div>
-
       <div class="footer__bottom">
         <span>© 2026 RS Accesorios · Todos los derechos reservados</span>
-        <span class="footer__bottom-tag">Diseño Premium · Buenos Aires</span>
+        <a href="https://www.linkedin.com/in/ignaciogomez0011"
+          >Creado por Ignacio Gomez</a
+        >
       </div>
     </footer>
 
