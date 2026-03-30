@@ -260,10 +260,6 @@ function renderProductDetail(product) {
 
       <div class="product-detail__meta-grid">
         <div class="product-detail__meta-item">
-          <div class="product-detail__meta-label">Código</div>
-          <div class="product-detail__meta-value">${escapeHtml(product.code)}</div>
-        </div>
-        <div class="product-detail__meta-item">
           <div class="product-detail__meta-label">Marca</div>
           <div class="product-detail__meta-value">${escapeHtml(product.brand)}</div>
         </div>
