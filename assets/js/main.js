@@ -16,11 +16,13 @@ const els = {
   filterBrand: document.getElementById("filterBrand"),
   filterModel: document.getElementById("filterModel"),
   filterRim: document.getElementById("filterRim"),
+  filterRimGroup: document.getElementById("filterRimGroup"),
   catalogSidebar: document.getElementById("catalogSidebar"),
   clearFiltersBtn: document.getElementById("clearFiltersBtn"),
   emptyReset: document.getElementById("emptyReset"),
   sortSelect: document.getElementById("sortSelect"),
 };
+
 let state = {
   products: [],
   category: "",
@@ -29,6 +31,10 @@ let state = {
   sort: "",
   filters: { brand: "", model: "", rim: "" },
 };
+
+const pageMode = document.body.dataset.page || "home";
+const isHomePage = pageMode === "home";
+const isCatalogPage = pageMode === "catalog";
 
 // ─── Pure helpers ────────────────────────────────────────────────
 function normalizeText(value) {
@@ -50,6 +56,7 @@ function getFeaturedProducts(products) {
   const deflectores = products
     .filter((p) => p.category === "DEFLECTORES")
     .slice(0, 1);
+
   return [
     ...espejos,
     ...tazas,
@@ -69,6 +76,7 @@ function formatCategoryLabel(cat) {
     RADIADORES: "Radiadores",
     DEFLECTORES: "Deflectores",
   };
+
   return map[cat] || (cat ? cat.charAt(0) + cat.slice(1).toLowerCase() : "");
 }
 
@@ -81,15 +89,21 @@ function uniqueValues(products, key) {
 function extractModelFromProduct(product) {
   const description = String(product.description ?? "").trim();
   const brand = String(product.brand ?? "").trim();
+
   if (!description) return "";
+
   const words = description
     .split(/\s+/)
     .map((w) => w.replace(/[^\p{L}\p{N}-]/gu, ""))
     .filter(Boolean);
+
   if (!words.length) return "";
+
   const brandNorm = normalizeText(brand);
   const filteredWords = words.filter((w) => normalizeText(w) !== brandNorm);
+
   if (!filteredWords.length) return "";
+
   return filteredWords[0].toUpperCase();
 }
 
@@ -102,7 +116,18 @@ function extractModels(products, brand, category = "") {
     })
     .map(extractModelFromProduct)
     .filter(Boolean);
+
   return [...new Set(models)].sort((a, b) => a.localeCompare(b, "es"));
+}
+
+function goToCatalog({ category = "", q = "" } = {}) {
+  const params = new URLSearchParams();
+
+  if (category) params.set("cat", category);
+  if (q) params.set("q", q);
+
+  const queryString = params.toString();
+  window.location.href = `./catalogo.html${queryString ? `?${queryString}` : ""}`;
 }
 
 // ─── Intersection Observer ───────────────────────────────────────
@@ -127,8 +152,10 @@ function observeRevealItems() {
 (function initHeaderScroll() {
   const header = document.getElementById("mainHeader");
   if (!header) return;
+
   const handler = () =>
     header.classList.toggle("is-scrolled", window.scrollY > 12);
+
   window.addEventListener("scroll", handler, { passive: true });
   handler();
 })();
@@ -136,11 +163,14 @@ function observeRevealItems() {
 // ─── Cursor glow ─────────────────────────────────────────────────
 (function initCursorGlow() {
   const glow = document.getElementById("cursorGlow");
+
   if (!glow || window.matchMedia("(pointer: coarse)").matches) {
     if (glow) glow.style.display = "none";
     return;
   }
+
   let rafId;
+
   document.addEventListener(
     "mousemove",
     (e) => {
@@ -156,13 +186,16 @@ function observeRevealItems() {
 // ─── Card tilt ───────────────────────────────────────────────────
 function initCardTilt(card) {
   if (window.matchMedia("(pointer: coarse)").matches) return;
+
   card.addEventListener("mousemove", (e) => {
     const rect = card.getBoundingClientRect();
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
+
     card.style.transform = `translateY(-8px) scale(1.01) rotateX(${(-dy * 5).toFixed(2)}deg) rotateY(${(dx * 5).toFixed(2)}deg)`;
     card.style.transition = "transform 0.08s linear";
   });
+
   card.addEventListener("mouseleave", () => {
     card.style.transform = "";
     card.style.transition = "";
@@ -214,6 +247,7 @@ function initHeroSlider() {
   const prevBtn = document.getElementById("heroPrev");
   const nextBtn = document.getElementById("heroNext");
   const progress = document.getElementById("heroProgress");
+
   if (!slides.length) return;
 
   let current = 0;
@@ -263,6 +297,7 @@ function initHeroSlider() {
     clearInterval(progressId);
     elapsed = 0;
     const step = 50;
+
     progressId = setInterval(() => {
       elapsed += step;
       const pct = Math.min((elapsed / DURATION) * 100, 100);
@@ -273,6 +308,7 @@ function initHeroSlider() {
   function startAutoPlay() {
     stopAutoPlay();
     startProgress();
+
     autoPlayId = setInterval(() => {
       updateSlider(current + 1);
       startProgress();
@@ -290,6 +326,7 @@ function initHeroSlider() {
     updateSlider(current - 1);
     startAutoPlay();
   });
+
   nextBtn?.addEventListener("click", () => {
     updateSlider(current + 1);
     startAutoPlay();
@@ -308,17 +345,26 @@ function initHeroSlider() {
 
   document.querySelectorAll(".hero__cta[data-nav-category]").forEach((btn) => {
     btn.addEventListener("click", () => {
-      state.category = btn.getAttribute("data-nav-category") || "";
+      const category = btn.getAttribute("data-nav-category") || "";
+
+      if (isHomePage) {
+        goToCatalog({ category });
+        return;
+      }
+
+      state.category = category;
       state.currentPage = 1;
       clearDependentFilters();
       setActiveNav(state.category);
       updateModelFilter();
+      updateRimFilterVisibility();
       apply();
       scrollToResults();
     });
   });
 
   let touchStartX = 0;
+
   heroSection?.addEventListener(
     "touchstart",
     (e) => {
@@ -326,6 +372,7 @@ function initHeroSlider() {
     },
     { passive: true },
   );
+
   heroSection?.addEventListener(
     "touchend",
     (e) => {
@@ -356,7 +403,10 @@ function initMobileNav() {
 
   document.addEventListener("click", (e) => {
     if (!nav.classList.contains("is-mobile-open")) return;
-    if (!e.target.closest(".header")) nav.classList.remove("is-mobile-open");
+    if (!e.target.closest(".header")) {
+      nav.classList.remove("is-mobile-open");
+      btn.classList.remove("is-open");
+    }
   });
 }
 
@@ -385,11 +435,9 @@ function initCategoriesMenu() {
   toggle.addEventListener("click", (e) => {
     e.stopPropagation();
     clearTimeout(closeTimer);
-    if (menu.hidden) {
-      open();
-    } else {
-      close(0);
-    }
+
+    if (menu.hidden) open();
+    else close(0);
   });
 
   if (window.innerWidth > 900) {
@@ -421,10 +469,13 @@ function initViewToggle() {
   wrap.addEventListener("click", (e) => {
     const btn = e.target.closest(".view-toggle__btn");
     if (!btn) return;
+
     const view = btn.dataset.view;
+
     wrap.querySelectorAll(".view-toggle__btn").forEach((b) => {
       b.classList.toggle("view-toggle__btn--active", b.dataset.view === view);
     });
+
     grid.classList.toggle("is-list", view === "list");
   });
 }
@@ -447,17 +498,19 @@ function initNavIndicator() {
     indicator.style.opacity = "1";
   }
 
-  function hideIndicator() {
-    const active = inner.querySelector(".nav__link.is-active");
-    if (active) moveIndicator(active);
-    else indicator.style.opacity = "0";
-  }
-
   inner.querySelectorAll(".nav__link").forEach((link) => {
     link.addEventListener("mouseenter", () => moveIndicator(link));
-    link.addEventListener("mouseleave", hideIndicator);
+    link.addEventListener("mouseleave", () => {
+      const active = inner.querySelector(".nav__link.is-active");
+      if (active) moveIndicator(active);
+      else indicator.style.opacity = "0";
+    });
     link.addEventListener("focus", () => moveIndicator(link));
-    link.addEventListener("blur", hideIndicator);
+    link.addEventListener("blur", () => {
+      const active = inner.querySelector(".nav__link.is-active");
+      if (active) moveIndicator(active);
+      else indicator.style.opacity = "0";
+    });
   });
 
   const activeObserver = new MutationObserver(() => {
@@ -488,57 +541,83 @@ function buildFilters(products) {
         .join("");
     els.filterCategory.value = state.category;
   }
+
   if (els.filterBrand) {
     els.filterBrand.innerHTML =
       `<option value="">Todas las marcas</option>` +
       brands.map((b) => `<option value="${b}">${b}</option>`).join("");
     els.filterBrand.value = state.filters.brand;
   }
+
   if (els.filterRim) {
     els.filterRim.innerHTML =
       `<option value="">Todos los rodados</option>` +
       rims.map((r) => `<option value="${r}">${r}</option>`).join("");
     els.filterRim.value = state.filters.rim;
   }
+
   updateModelFilter();
+  updateRimFilterVisibility();
 }
 
 function updateModelFilter() {
   if (!els.filterModel) return;
+
   const brand = state.filters.brand;
   const category = state.category;
+
   if (!brand) {
     els.filterModel.innerHTML = `<option value="">Seleccione marca primero</option>`;
     els.filterModel.disabled = true;
     return;
   }
+
   const models = extractModels(state.products, brand, category);
+
   els.filterModel.innerHTML =
     `<option value="">Todos los modelos</option>` +
     models.map((m) => `<option value="${m}">${m}</option>`).join("");
+
   els.filterModel.disabled = false;
   els.filterModel.value = state.filters.model || "";
 }
+function updateRimFilterVisibility() {
+  if (!els.filterRimGroup || !els.filterRim) return;
 
+  const shouldShowRim = state.category === "TAZAS";
+
+  els.filterRimGroup.hidden = !shouldShowRim;
+
+  if (!shouldShowRim) {
+    state.filters.rim = "";
+    els.filterRim.value = "";
+  }
+}
 function clearSidebarFilters() {
   state.category = "";
   state.filters = { brand: "", model: "", rim: "" };
   state.sort = "";
+
   if (els.filterCategory) els.filterCategory.value = "";
   if (els.filterBrand) els.filterBrand.value = "";
   if (els.filterRim) els.filterRim.value = "";
   if (els.sortSelect) els.sortSelect.value = "";
+
   if (els.filterModel) {
     els.filterModel.innerHTML = `<option value="">Seleccione marca primero</option>`;
     els.filterModel.disabled = true;
   }
+
   setActiveNav(state.category);
+  updateRimFilterVisibility();
 }
 
 function clearDependentFilters() {
   state.filters = { brand: "", model: "", rim: "" };
+
   if (els.filterBrand) els.filterBrand.value = "";
   if (els.filterRim) els.filterRim.value = "";
+
   if (els.filterModel) {
     els.filterModel.innerHTML = `<option value="">Seleccione marca primero</option>`;
     els.filterModel.disabled = true;
@@ -548,6 +627,7 @@ function clearDependentFilters() {
 // ─── Category nav ────────────────────────────────────────────────
 function buildCategoryNav(products) {
   if (!els.categoryNav) return;
+
   const categories = [
     ...new Set(products.map((p) => p.category).filter(Boolean)),
   ].sort((a, b) => a.localeCompare(b));
@@ -577,12 +657,14 @@ function setActiveNav(category) {
     a.classList.toggle("is-active", active);
     a.setAttribute("aria-current", active ? "page" : "false");
   });
+
   document
     .querySelectorAll(".nav-cat-item[data-nav-category]")
     .forEach((btn) => {
       const cat = btn.getAttribute("data-nav-category") ?? "";
       btn.classList.toggle("is-active", cat === category);
     });
+
   if (els.filterCategory) els.filterCategory.value = category || "";
 }
 
@@ -590,13 +672,7 @@ function setActiveNav(category) {
 function renderPagination(totalItems, currentPage, pageSize) {
   if (!els.pagination) return;
 
-  const qNorm = normalizeText(els.q?.value ?? "");
-  const hasSidebarFilters =
-    !!state.category ||
-    !!state.filters.brand ||
-    !!state.filters.model ||
-    !!state.filters.rim;
-  const isHomeView = !qNorm && !hasSidebarFilters;
+  const isHomeView = isHomePage;
   const totalPages = Math.ceil(totalItems / pageSize);
 
   if (isHomeView || totalPages <= 1) {
@@ -605,6 +681,7 @@ function renderPagination(totalItems, currentPage, pageSize) {
   }
 
   const frag = document.createDocumentFragment();
+
   const btn = (text, page, active, disabled, delay) => {
     const b = document.createElement("button");
     b.className = `pagination__btn${active ? " is-active" : ""}`;
@@ -617,9 +694,11 @@ function renderPagination(totalItems, currentPage, pageSize) {
   };
 
   frag.appendChild(btn("←", currentPage - 1, false, currentPage === 1, 0));
+
   for (let i = 1; i <= totalPages; i++) {
     frag.appendChild(btn(i, i, i === currentPage, false, i));
   }
+
   frag.appendChild(
     btn(
       "→",
@@ -635,7 +714,6 @@ function renderPagination(totalItems, currentPage, pageSize) {
 }
 
 // ─── Catalog UI update ────────────────────────────────────────────
-// SIN requestAnimationFrame — ejecuta síncronamente para evitar race conditions
 function updateCatalogUI({ isHomeView, totalItems }) {
   const resultsTitle = document.getElementById("resultsTitle");
 
@@ -644,12 +722,15 @@ function updateCatalogUI({ isHomeView, totalItems }) {
       ? "Productos destacados"
       : "Resultados";
   }
+
   if (els.catalogSidebar) {
     els.catalogSidebar.hidden = isHomeView;
   }
+
   if (els.resultsSection) {
     els.resultsSection.classList.toggle("catalog--home", isHomeView);
   }
+
   if (els.resultsCount) {
     if (isHomeView) {
       els.resultsCount.textContent = "";
@@ -671,6 +752,7 @@ function updateCatalogUI({ isHomeView, totalItems }) {
     }
   }
 }
+
 function sortProducts(products, sort) {
   const arr = [...products];
 
@@ -710,13 +792,8 @@ function sortProducts(products, sort) {
 // ─── Apply filters & render ───────────────────────────────────────
 function apply() {
   const qNorm = normalizeText(els.q?.value ?? "");
-  const hasSidebarFilters =
-    !!state.category ||
-    !!state.filters.brand ||
-    !!state.filters.model ||
-    !!state.filters.rim;
-  const isHomeView = !qNorm && !hasSidebarFilters;
-  const baseProducts = isHomeView
+  const isHomeView = isHomePage;
+  const baseProducts = isHomePage
     ? getFeaturedProducts(state.products)
     : state.products;
 
@@ -728,8 +805,9 @@ function apply() {
     if (
       state.filters.model &&
       extractModelFromProduct(p) !== state.filters.model
-    )
+    ) {
       return false;
+    }
     return true;
   });
 
@@ -737,15 +815,14 @@ function apply() {
 
   const totalItems = sorted.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
+
   if (state.currentPage > totalPages) state.currentPage = 1;
 
   const start = (state.currentPage - 1) * state.pageSize;
   const paginated = sorted.slice(start, start + state.pageSize);
 
-  // Síncronos — sin RAF, sin setTimeout
   updateCatalogUI({ isHomeView, totalItems });
 
-  // Ocultar emptyState siempre antes de renderizar
   if (els.emptyState) els.emptyState.hidden = true;
 
   if (els.productsGrid) {
@@ -756,38 +833,12 @@ function apply() {
       renderProducts(paginated, els);
       renderPagination(totalItems, state.currentPage, state.pageSize);
 
-      // Recalcular isHomeView en el momento exacto del render
-      const qNormNow = normalizeText(els.q?.value ?? "");
-      const hasFiltersNow =
-        !!state.category ||
-        !!state.filters.brand ||
-        !!state.filters.model ||
-        !!state.filters.rim;
-      const isHomeViewNow = !qNormNow && !hasFiltersNow;
-      // ── DEBUG ──────────────────────────────────────
-      console.group("apply() debug");
-      console.log("qNormNow:", qNormNow);
-      console.log("state.category:", state.category);
-      console.log("state.filters:", state.filters);
-      console.log("isHomeViewNow:", isHomeViewNow);
-      console.log("paginated.length:", paginated.length);
-      console.log(
-        "emptyState.hidden debería ser:",
-        !(paginated.length === 0 && !isHomeViewNow),
-      );
-      console.log(
-        "emptyState.hidden actual antes de setear:",
-        els.emptyState?.hidden,
-      );
-      console.groupEnd();
-      // ───────────────────────────────────────────────
+      const isHomeViewNow = isHomePage;
 
-      // emptyState solo si no hay productos Y estamos en vista de búsqueda
       if (els.emptyState) {
         els.emptyState.hidden = !(paginated.length === 0 && !isHomeViewNow);
       }
 
-      // Card tilt
       els.productsGrid.querySelectorAll(".card").forEach((card) => {
         initCardTilt(card);
       });
@@ -805,11 +856,13 @@ function apply() {
 
 function scrollToResults() {
   if (!els.resultsSection) return;
+
   const offset = window.innerWidth <= 768 ? 80 : 120;
   const top =
     els.resultsSection.getBoundingClientRect().top +
     window.pageYOffset -
     offset;
+
   window.scrollTo({ top, behavior: "smooth" });
 }
 
@@ -817,17 +870,28 @@ function scrollToResults() {
 function handleNavCategoryClick(e) {
   const link = e.target.closest("[data-nav-category]");
   if (!link) return;
+
   if (link.tagName === "A" && !link.closest(".nav") && !link.closest(".footer"))
     return;
 
   e.preventDefault();
-  state.category = link.getAttribute("data-nav-category") || "";
+
+  const category = link.getAttribute("data-nav-category") || "";
+
+  if (isHomePage) {
+    goToCatalog({ category });
+    return;
+  }
+
+  state.category = category;
   state.currentPage = 1;
   clearDependentFilters();
   setActiveNav(state.category);
   updateModelFilter();
+  updateRimFilterVisibility();
   apply();
   scrollToResults();
+
   document.getElementById("mainNav")?.classList.remove("is-mobile-open");
   document.getElementById("mobileMenuBtn")?.classList.remove("is-open");
 }
@@ -836,6 +900,18 @@ function handleNavCategoryClick(e) {
 async function boot() {
   try {
     state.products = await loadProducts();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const qFromUrl = urlParams.get("q");
+    const catFromUrl = urlParams.get("cat");
+
+    if (qFromUrl && els.q) {
+      els.q.value = qFromUrl;
+    }
+
+    if (isCatalogPage && catFromUrl) {
+      state.category = String(catFromUrl).trim().toUpperCase();
+    }
 
     setProductsIndex(state.products);
     initCartUI();
@@ -852,23 +928,39 @@ async function boot() {
     apply();
 
     // ── Search
-    els.q?.addEventListener("input", () => {
-      state.currentPage = 1;
-      apply();
-    });
+    if (isCatalogPage) {
+      els.q?.addEventListener("input", () => {
+        state.currentPage = 1;
+        apply();
+      });
+    }
 
     els.searchBtn?.addEventListener("click", () => {
+      const q = String(els.q?.value ?? "").trim();
+
+      if (isHomePage) {
+        goToCatalog({ q });
+        return;
+      }
+
       state.currentPage = 1;
       apply();
       scrollToResults();
     });
 
     els.q?.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        state.currentPage = 1;
-        apply();
-        scrollToResults();
+      if (e.key !== "Enter") return;
+
+      const q = String(els.q?.value ?? "").trim();
+
+      if (isHomePage) {
+        goToCatalog({ q });
+        return;
       }
+
+      state.currentPage = 1;
+      apply();
+      scrollToResults();
     });
 
     // ── Filters
@@ -878,6 +970,7 @@ async function boot() {
       clearDependentFilters();
       setActiveNav(state.category);
       updateModelFilter();
+      updateRimFilterVisibility();
       apply();
     });
 
@@ -900,6 +993,7 @@ async function boot() {
       state.currentPage = 1;
       apply();
     });
+
     els.sortSelect?.addEventListener("change", () => {
       state.sort = els.sortSelect.value;
       state.currentPage = 1;
@@ -908,6 +1002,7 @@ async function boot() {
 
     els.clearFiltersBtn?.addEventListener("click", () => {
       clearSidebarFilters();
+      if (els.q) els.q.value = "";
       state.currentPage = 1;
       apply();
     });
@@ -919,28 +1014,17 @@ async function boot() {
       apply();
     });
 
-    // ── Category nav + footer
+    // ── Category nav
     document.addEventListener("click", handleNavCategoryClick);
-
-    document.querySelector(".footer")?.addEventListener("click", (e) => {
-      const link = e.target.closest("[data-nav-category]");
-      if (!link) return;
-      e.preventDefault();
-      state.category = link.getAttribute("data-nav-category") || "";
-      state.currentPage = 1;
-      clearDependentFilters();
-      setActiveNav(state.category);
-      updateModelFilter();
-      apply();
-      scrollToResults();
-    });
 
     // ── Pagination
     els.pagination?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-page]");
       if (!btn || btn.disabled) return;
+
       const page = Number(btn.getAttribute("data-page"));
       if (!page || page < 1) return;
+
       state.currentPage = page;
       apply();
       scrollToResults();
@@ -952,17 +1036,14 @@ async function boot() {
     });
   } catch (err) {
     console.error("Error al iniciar la app:", err);
+
     if (els.productsGrid) els.productsGrid.innerHTML = "";
+
     if (els.resultsCount) {
       els.resultsCount.hidden = false;
       els.resultsCount.textContent = "No se pudieron cargar los productos";
     }
   }
 }
-// Leer query param ?q= si viene desde product.html
-const urlParams = new URLSearchParams(window.location.search);
-const qFromUrl = urlParams.get("q");
-if (qFromUrl && els.q) {
-  els.q.value = qFromUrl;
-}
+
 boot();

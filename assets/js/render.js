@@ -48,7 +48,8 @@ function cardTemplate(p) {
   const isConsult = !p.active;
 
   // Usar título descriptivo si existe, sino fallback a description
-  const titulo = p.detalle || p.descripcion || "";
+
+  const titulo = p.detalle || p.description || "";
 
   return `
 <article class="card" data-code="${escapeHtml(p.code)}">
@@ -316,7 +317,7 @@ export function cartItemTemplate(item) {
     <img src="${escapeHtml(img)}" alt="${escapeHtml(item.description)}" loading="lazy" />
   </div>
   <div class="cart-item__top">
-    <p class="cart-item__name">${escapeHtml(item.description)}</p>
+    <p class="cart-item__name">${escapeHtml(item.detalle || item.description)}</p>
     <p class="cart-item__meta">
       ${escapeHtml(item.brand)}${item.rim ? ` · Rodado ${escapeHtml(item.rim)}` : ""}
     </p>

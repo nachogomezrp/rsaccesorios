@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>RS Accesorios</title>
+    <title>Catálogo | RS Accesorios</title>
     <link rel="icon" type="image/png" href="./assets/img/logo.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
 
-  <body data-page="home">
+  <body data-page="catalog">
     <div class="cursor-glow" id="cursorGlow"></div>
     <div class="noise-overlay" aria-hidden="true"></div>
 
@@ -116,6 +116,7 @@
             </span>
             <span class="cart-trigger__label">Carrito</span>
           </button>
+
           <button
             class="mobile-menu-btn"
             id="mobileMenuBtn"
@@ -154,353 +155,8 @@
 
     <!-- ═══════════════ MAIN ══ -->
     <main>
-      <!-- HERO -->
-      <section class="hero" id="heroSection">
-        <div class="hero__slider" id="heroSlider">
-          <!-- ESPEJOS -->
-          <div class="hero__slide hero__slide--active" data-index="0">
-            <div class="hero__media">
-              <img
-                src="./assets/img/hero-espejos.jpg"
-                alt="Espejos"
-                class="hero__img"
-              />
-              <div class="hero__media-overlay"></div>
-            </div>
-            <div class="hero__content">
-              <div class="hero__eyebrow">
-                <span class="hero__eyebrow-dot"></span>Espejos
-              </div>
-              <h1 class="hero__title">
-                Visión clara,<br /><em class="hero__title-em"
-                  >diseño perfecto.</em
-                >
-              </h1>
-              <p class="hero__text">
-                Espejos premium compatibles con múltiples modelos.
-              </p>
-              <div class="hero__cta-group">
-                <button
-                  class="hero__cta hero__cta--primary"
-                  data-nav-category="ESPEJOS"
-                >
-                  Ver espejos
-                </button>
-                <button class="hero__cta hero__cta--ghost" data-nav-category="">
-                  Todo el catálogo
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- TAZAS -->
-          <div class="hero__slide" data-index="1">
-            <div class="hero__media">
-              <img
-                src="./assets/img/hero-tazas.jpg"
-                alt="Tazas"
-                class="hero__img"
-              />
-              <div class="hero__media-overlay"></div>
-            </div>
-            <div class="hero__content">
-              <div class="hero__eyebrow">
-                <span class="hero__eyebrow-dot"></span>Tazas
-              </div>
-              <h1 class="hero__title">
-                Detalles que<br /><em class="hero__title-em"
-                  >marcan la diferencia.</em
-                >
-              </h1>
-              <p class="hero__text">
-                Tazas que elevan la estética de tu vehículo.
-              </p>
-              <div class="hero__cta-group">
-                <button
-                  class="hero__cta hero__cta--primary"
-                  data-nav-category="TAZAS"
-                >
-                  Ver tazas
-                </button>
-                <button class="hero__cta hero__cta--ghost" data-nav-category="">
-                  Todo el catálogo
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- ÓPTICAS -->
-          <div class="hero__slide" data-index="2">
-            <div class="hero__media">
-              <img
-                src="./assets/img/hero-opticas.jpg"
-                alt="Ópticas"
-                class="hero__img"
-              />
-              <div class="hero__media-overlay"></div>
-            </div>
-            <div class="hero__content">
-              <div class="hero__eyebrow">
-                <span class="hero__eyebrow-dot"></span>Ópticas
-              </div>
-              <h1 class="hero__title">
-                Iluminación que<br /><em class="hero__title-em">destaca.</em>
-              </h1>
-              <p class="hero__text">
-                Ópticas diseñadas para máxima visibilidad y estilo.
-              </p>
-              <div class="hero__cta-group">
-                <button
-                  class="hero__cta hero__cta--primary"
-                  data-nav-category="OPTICAS"
-                >
-                  Ver ópticas
-                </button>
-                <button class="hero__cta hero__cta--ghost" data-nav-category="">
-                  Todo el catálogo
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- FAROS -->
-          <div class="hero__slide" data-index="3">
-            <div class="hero__media">
-              <img
-                src="./assets/img/hero-faros.jpg"
-                alt="Faros"
-                class="hero__img"
-              />
-              <div class="hero__media-overlay"></div>
-            </div>
-            <div class="hero__content">
-              <div class="hero__eyebrow">
-                <span class="hero__eyebrow-dot"></span>Faros
-              </div>
-              <h1 class="hero__title">
-                Potencia y<br /><em class="hero__title-em">seguridad.</em>
-              </h1>
-              <p class="hero__text">
-                Faros de alto rendimiento para cada situación.
-              </p>
-              <div class="hero__cta-group">
-                <button
-                  class="hero__cta hero__cta--primary"
-                  data-nav-category="FAROS"
-                >
-                  Ver faros
-                </button>
-                <button class="hero__cta hero__cta--ghost" data-nav-category="">
-                  Todo el catálogo
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- RADIADORES -->
-          <div class="hero__slide" data-index="4">
-            <div class="hero__media">
-              <img
-                src="./assets/img/hero-radiadores.jpg"
-                alt="Radiadores"
-                class="hero__img"
-              />
-              <div class="hero__media-overlay"></div>
-            </div>
-            <div class="hero__content">
-              <div class="hero__eyebrow">
-                <span class="hero__eyebrow-dot"></span>Radiadores
-              </div>
-              <h1 class="hero__title">
-                Rendimiento<br /><em class="hero__title-em">sin límites.</em>
-              </h1>
-              <p class="hero__text">
-                Radiadores confiables para el cuidado del motor.
-              </p>
-              <div class="hero__cta-group">
-                <button
-                  class="hero__cta hero__cta--primary"
-                  data-nav-category="RADIADORES"
-                >
-                  Ver radiadores
-                </button>
-                <button class="hero__cta hero__cta--ghost" data-nav-category="">
-                  Todo el catálogo
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- DEFLECTORES -->
-          <div class="hero__slide" data-index="5">
-            <div class="hero__media">
-              <img
-                src="./assets/img/hero-deflectores.jpg"
-                alt="Deflectores"
-                class="hero__img"
-              />
-              <div class="hero__media-overlay"></div>
-            </div>
-            <div class="hero__content">
-              <div class="hero__eyebrow">
-                <span class="hero__eyebrow-dot"></span>Deflectores
-              </div>
-              <h1 class="hero__title">
-                Estilo y<br /><em class="hero__title-em">protección.</em>
-              </h1>
-              <p class="hero__text">
-                Deflectores que combinan diseño y funcionalidad.
-              </p>
-              <div class="hero__cta-group">
-                <button
-                  class="hero__cta hero__cta--primary"
-                  data-nav-category="DEFLECTORES"
-                >
-                  Ver deflectores
-                </button>
-                <button class="hero__cta hero__cta--ghost" data-nav-category="">
-                  Todo el catálogo
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ARROWS -->
-        <button
-          class="hero__arrow hero__arrow--left"
-          id="heroPrev"
-          aria-label="Anterior"
-        >
-          ‹
-        </button>
-        <button
-          class="hero__arrow hero__arrow--right"
-          id="heroNext"
-          aria-label="Siguiente"
-        >
-          ›
-        </button>
-
-        <!-- PROGRESS -->
-        <div class="hero__progress-bar">
-          <div class="hero__progress-fill" id="heroProgress"></div>
-        </div>
-
-        <!-- DOTS -->
-        <div class="hero__dots" role="tablist">
-          <button class="hero__dot hero__dot--active"></button>
-          <button class="hero__dot"></button>
-          <button class="hero__dot"></button>
-          <button class="hero__dot"></button>
-          <button class="hero__dot"></button>
-          <button class="hero__dot"></button>
-        </div>
-
-        <!-- SCROLL -->
-        <div class="hero__scroll-hint">
-          <div class="hero__scroll-line"></div>
-          <span>scroll</span>
-        </div>
-      </section>
-
-      <!-- FEATURES STRIP -->
-      <section class="features-strip" aria-label="Beneficios">
-        <div class="features-strip__inner">
-          <div class="feature-chip reveal-item">
-            <div class="feature-chip__icon">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.8"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"
-                />
-              </svg>
-            </div>
-            <div class="feature-chip__text">
-              <strong>Envío por zona</strong>
-              <span>Consulta disponibilidad</span>
-            </div>
-          </div>
-          <div class="feature-chip reveal-item">
-            <div class="feature-chip__icon">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.8"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"
-                />
-              </svg>
-            </div>
-            <div class="feature-chip__text">
-              <strong>Garantía de calidad</strong>
-              <span>Productos certificados</span>
-            </div>
-          </div>
-          <div class="feature-chip reveal-item">
-            <div class="feature-chip__icon">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.8"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </div>
-            <div class="feature-chip__text">
-              <strong>Cotización gratis</strong>
-              <span>Respondemos rápido</span>
-            </div>
-          </div>
-          <div class="feature-chip reveal-item">
-            <div class="feature-chip__icon">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="1.8"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M20.25 8.511c.884.284 1.5 1.128 1.5 2.097v4.286c0 1.136-.847 2.1-1.98 2.193-.34.027-.68.052-1.02.072v3.091l-3-3c-1.354 0-2.694-.055-4.02-.163a2.115 2.115 0 01-.825-.242m9.345-8.334a2.126 2.126 0 00-.476-.095 48.64 48.64 0 00-8.048 0c-1.131.094-1.976 1.057-1.976 2.192v4.286c0 .837.46 1.58 1.155 1.951m9.345-8.334V6.637c0-1.621-1.152-3.026-2.76-3.235A48.455 48.455 0 0011.25 3c-2.115 0-4.198.137-6.24.402-1.608.209-2.76 1.614-2.76 3.235v6.226c0 1.621 1.152 3.026 2.76 3.235.577.075 1.157.14 1.74.194V21l4.155-4.155"
-                />
-              </svg>
-            </div>
-            <div class="feature-chip__text">
-              <strong>Atención por WhatsApp</strong>
-              <span>Lunes a sábados</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- CATALOG -->
       <section id="resultsSection" class="catalog">
-        <aside id="catalogSidebar" class="catalog__sidebar" hidden>
+        <aside id="catalogSidebar" class="catalog__sidebar">
           <div class="filters-box">
             <div class="filters-box__header">
               <h3 class="filters-box__title">
@@ -538,6 +194,7 @@
                 Limpiar
               </button>
             </div>
+
             <div class="filter-group">
               <label class="filter-label" for="filterCategory">Categoría</label>
               <div class="filter-select-wrap">
@@ -561,6 +218,7 @@
                 </svg>
               </div>
             </div>
+
             <div class="filter-group">
               <label class="filter-label" for="filterBrand">Marca</label>
               <div class="filter-select-wrap">
@@ -584,6 +242,7 @@
                 </svg>
               </div>
             </div>
+
             <div class="filter-group">
               <label class="filter-label" for="filterModel">Modelo</label>
               <div class="filter-select-wrap">
@@ -607,6 +266,7 @@
                 </svg>
               </div>
             </div>
+
             <div class="filter-group" id="filterRimGroup">
               <label class="filter-label" for="filterRim">Rodado</label>
               <div class="filter-select-wrap">
@@ -636,11 +296,12 @@
         <div class="catalog__content">
           <div class="results__bar">
             <div class="results__bar-left">
-              <h2 id="resultsTitle" class="section-title">Nuestra Selección</h2>
+              <h1 id="resultsTitle" class="section-title">Resultados</h1>
               <span id="resultsCount" class="results__count"
                 >Cargando catálogo…</span
               >
             </div>
+
             <div class="results__bar-right">
               <div class="filter-select-wrap results-sort-wrap">
                 <select
@@ -696,6 +357,7 @@
                     />
                   </svg>
                 </button>
+
                 <button
                   class="view-toggle__btn"
                   data-view="list"
@@ -712,15 +374,17 @@
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                      d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+                      d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0M3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0m-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0"
                     />
                   </svg>
                 </button>
               </div>
             </div>
           </div>
+
           <div id="productsGrid" class="grid" aria-live="polite"></div>
           <div id="pagination" class="pagination"></div>
+
           <div id="emptyState" class="empty" hidden>
             <div class="empty__icon">
               <svg
@@ -782,6 +446,7 @@
               <p class="drawer__subtitle">Revisá tu pedido antes de enviar</p>
             </div>
           </div>
+
           <button
             id="cartCloseBtn"
             class="drawer__close"
@@ -804,7 +469,9 @@
             </svg>
           </button>
         </div>
+
         <div id="cartItems" class="cart"></div>
+
         <div class="drawer__footer">
           <div class="totals">
             <div class="totals__row">
@@ -815,6 +482,7 @@
               * Ítems sin precio se cotizarán por WhatsApp
             </p>
           </div>
+
           <button
             id="checkoutBtn"
             class="checkout-btn"
@@ -837,6 +505,7 @@
     <!-- ═══════════════ FOOTER ══ -->
     <footer class="footer">
       <div class="footer__glow" aria-hidden="true"></div>
+
       <div class="footer__inner">
         <div class="footer__brand">
           <div class="footer__logo-wrap">
@@ -846,10 +515,12 @@
               class="footer__logo"
             />
           </div>
+
           <p class="footer__brand-desc">
             Tu destino premium para accesorios, repuestos y detalles que elevan
             tu vehículo al siguiente nivel.
           </p>
+
           <a href="https://wa.me/5491131898284" class="footer__wa-btn">
             <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
               <path
@@ -859,6 +530,7 @@
             Contactar ahora
           </a>
         </div>
+
         <div class="footer__col">
           <h4 class="footer__col-title">Catálogo</h4>
           <nav class="footer__nav">
@@ -881,6 +553,7 @@
             >
           </nav>
         </div>
+
         <div class="footer__col">
           <h4 class="footer__col-title">Contacto</h4>
           <nav class="footer__nav">
@@ -897,6 +570,7 @@
               </svg>
               +54 11 3189 8284
             </a>
+
             <a href="mailto:ventas@rsaccesorios.com" class="footer__link">
               <svg
                 width="14"
@@ -914,6 +588,7 @@
               </svg>
               ventas@rsaccesorios.com
             </a>
+
             <span class="footer__link footer__link--static">
               <svg
                 width="14"
@@ -939,6 +614,7 @@
           </nav>
         </div>
       </div>
+
       <div class="footer__bottom">
         <span>© 2026 RS Accesorios · Todos los derechos reservados</span>
         <a href="https://www.linkedin.com/in/ignaciogomez0011"
