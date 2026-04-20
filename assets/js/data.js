@@ -5,7 +5,8 @@
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJ2O79G-uKQF1O7oKz-5g6sSvW1lnggUNOoiwtn6XWdNInaomFkrgDNMzEjWC0A/pub?gid=847739532&single=true&output=csv";
 
-function normalizeText(value) {
+// CORRECCIÓN: exportada para poder importarla en main.js y evitar duplicación
+export function normalizeText(value) {
   return String(value ?? "")
     .toLowerCase()
     .normalize("NFD")
@@ -34,11 +35,9 @@ function parseCSVLine(line) {
   const result = [];
   let current = "";
   let inQuotes = false;
-
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
     const next = line[i + 1];
-
     if (char === '"') {
       if (inQuotes && next === '"') {
         current += '"';
@@ -53,7 +52,6 @@ function parseCSVLine(line) {
       current += char;
     }
   }
-
   result.push(current);
   return result.map((v) => v.trim());
 }
@@ -82,7 +80,6 @@ function csvToProducts(csvText) {
     .replace(/\r/g, "")
     .split("\n")
     .filter((line) => line.trim() !== "");
-
   if (!lines.length) return [];
 
   const headers = parseCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
@@ -110,9 +107,13 @@ function csvToProducts(csvText) {
       const price = parsePrice(row.price);
       const image_urls = parseImages(row.image_url);
 
-      // ── Columnas nuevas: "detalle" y "descripcion" ──
       const detalle = String(row.detalle ?? "").trim();
       const descripcion = String(row.descripcion ?? "").trim();
+
+      const compatString = String(row.compatibilidades ?? "").trim();
+      const compatibilidadesList = compatString
+        ? compatString.split("/").map((m) => m.trim().toUpperCase())
+        : [];
 
       const isActiveRaw = String(row.active ?? "")
         .trim()
@@ -128,16 +129,17 @@ function csvToProducts(csvText) {
         brand,
         code,
         description,
-        detalle, // título descriptivo para la card
-        descripcion, // descripción larga para product.html
+        detalle,
+        descripcion,
         price,
         image_url: image_urls[0] ?? "",
         image_urls,
         active: active && price > 0,
         years,
         rim,
+        compatibilidadesList,
         searchText: normalizeText(
-          `${category} ${brand} ${code} ${description} ${detalle}`,
+          `${category} ${brand} ${code} ${description} ${detalle} ${compatString}`,
         ),
       };
     })

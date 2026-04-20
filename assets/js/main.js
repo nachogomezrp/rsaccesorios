@@ -1,4 +1,4 @@
-import { loadProducts } from "./data.js";
+import { loadProducts, normalizeText } from "./data.js";
 import { renderProducts } from "./render.js";
 import { initCartUI, setProductsIndex } from "./cart.js";
 
@@ -37,13 +37,7 @@ const isHomePage = pageMode === "home";
 const isCatalogPage = pageMode === "catalog";
 
 // ─── Pure helpers ────────────────────────────────────────────────
-function normalizeText(value) {
-  return String(value ?? "")
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .trim();
-}
+// CORRECCIÓN: normalizeText eliminada de aquí, se importa desde data.js
 
 function getFeaturedProducts(products) {
   const espejos = products.filter((p) => p.category === "ESPEJOS").slice(0, 2);
@@ -56,7 +50,6 @@ function getFeaturedProducts(products) {
   const deflectores = products
     .filter((p) => p.category === "DEFLECTORES")
     .slice(0, 1);
-
   return [
     ...espejos,
     ...tazas,
@@ -76,7 +69,6 @@ function formatCategoryLabel(cat) {
     RADIADORES: "Radiadores",
     DEFLECTORES: "Deflectores",
   };
-
   return map[cat] || (cat ? cat.charAt(0) + cat.slice(1).toLowerCase() : "");
 }
 
@@ -86,46 +78,43 @@ function uniqueValues(products, key) {
   );
 }
 
-function extractModelFromProduct(product) {
-  const description = String(product.description ?? "").trim();
-  const brand = String(product.brand ?? "").trim();
-
-  if (!description) return "";
-
-  const words = description
-    .split(/\s+/)
-    .map((w) => w.replace(/[^\p{L}\p{N}-]/gu, ""))
-    .filter(Boolean);
-
-  if (!words.length) return "";
-
-  const brandNorm = normalizeText(brand);
-  const filteredWords = words.filter((w) => normalizeText(w) !== brandNorm);
-
-  if (!filteredWords.length) return "";
-
-  return filteredWords[0].toUpperCase();
+// Extrae las marcas simples descomponiendo valores compuestos (ej: "CITROEN-SUSUKI" → ["CITROEN", "SUSUKI"])
+function extractBrands(products) {
+  const brands = new Set();
+  products.forEach((p) => {
+    p.brand.split("-").forEach((b) => {
+      const clean = b.trim();
+      if (clean) brands.add(clean);
+    });
+  });
+  return [...brands].sort((a, b) => a.localeCompare(b, "es"));
 }
 
-function extractModels(products, brand, category = "") {
-  const models = products
-    .filter((p) => {
-      if (brand && p.brand !== brand) return false;
-      if (category && p.category !== category) return false;
-      return true;
-    })
-    .map(extractModelFromProduct)
-    .filter(Boolean);
+// Verifica si un producto pertenece a una marca, soportando marcas compuestas
+function brandMatches(productBrand, filterBrand) {
+  if (!filterBrand) return true;
+  return productBrand
+    .split("-")
+    .map((b) => b.trim())
+    .includes(filterBrand);
+}
 
-  return [...new Set(models)].sort((a, b) => a.localeCompare(b, "es"));
+// Extrae modelos disponibles según marca y/o categoría
+// Soporta marcas compuestas: "CITROEN" matchea productos con brand "CITROEN-SUSUKI"
+function extractModels(products, brand = "", category = "") {
+  const models = new Set();
+  products.forEach((p) => {
+    if (brand && !brandMatches(p.brand, brand)) return;
+    if (category && p.category !== category) return;
+    p.compatibilidadesList?.forEach((m) => models.add(m));
+  });
+  return [...models].sort((a, b) => a.localeCompare(b, "es"));
 }
 
 function goToCatalog({ category = "", q = "" } = {}) {
   const params = new URLSearchParams();
-
   if (category) params.set("cat", category);
   if (q) params.set("q", q);
-
   const queryString = params.toString();
   window.location.href = `./catalogo.html${queryString ? `?${queryString}` : ""}`;
 }
@@ -152,10 +141,8 @@ function observeRevealItems() {
 (function initHeaderScroll() {
   const header = document.getElementById("mainHeader");
   if (!header) return;
-
   const handler = () =>
     header.classList.toggle("is-scrolled", window.scrollY > 12);
-
   window.addEventListener("scroll", handler, { passive: true });
   handler();
 })();
@@ -163,14 +150,11 @@ function observeRevealItems() {
 // ─── Cursor glow ─────────────────────────────────────────────────
 (function initCursorGlow() {
   const glow = document.getElementById("cursorGlow");
-
   if (!glow || window.matchMedia("(pointer: coarse)").matches) {
     if (glow) glow.style.display = "none";
     return;
   }
-
   let rafId;
-
   document.addEventListener(
     "mousemove",
     (e) => {
@@ -186,16 +170,13 @@ function observeRevealItems() {
 // ─── Card tilt ───────────────────────────────────────────────────
 function initCardTilt(card) {
   if (window.matchMedia("(pointer: coarse)").matches) return;
-
   card.addEventListener("mousemove", (e) => {
     const rect = card.getBoundingClientRect();
     const dx = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2);
     const dy = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2);
-
     card.style.transform = `translateY(-8px) scale(1.01) rotateX(${(-dy * 5).toFixed(2)}deg) rotateY(${(dx * 5).toFixed(2)}deg)`;
     card.style.transition = "transform 0.08s linear";
   });
-
   card.addEventListener("mouseleave", () => {
     card.style.transform = "";
     card.style.transition = "";
@@ -207,26 +188,21 @@ function flyToCart(sourceEl) {
   const flyItem = document.getElementById("flyItem");
   const cartIcon = document.querySelector(".cart-trigger__icon");
   if (!flyItem || !cartIcon) return;
-
   const srcRect = sourceEl.getBoundingClientRect();
   const destRect = cartIcon.getBoundingClientRect();
   const startX = srcRect.left + srcRect.width / 2 - 26;
   const startY = srcRect.top + srcRect.height / 2 - 26;
   const endX = destRect.left + destRect.width / 2 - 26;
   const endY = destRect.top + destRect.height / 2 - 26;
-
   flyItem.style.left = `${startX}px`;
   flyItem.style.top = `${startY}px`;
   flyItem.style.setProperty("--fly-x", `${endX - startX}px`);
   flyItem.style.setProperty("--fly-y", `${endY - startY}px`);
-
   const img = sourceEl.closest(".card")?.querySelector(".card__img img");
   flyItem.innerHTML = img ? `<img src="${img.src}" alt="">` : "";
-
   flyItem.classList.remove("is-flying");
   void flyItem.offsetWidth;
   flyItem.classList.add("is-flying");
-
   flyItem.addEventListener(
     "animationend",
     () => {
@@ -247,9 +223,7 @@ function initHeroSlider() {
   const prevBtn = document.getElementById("heroPrev");
   const nextBtn = document.getElementById("heroNext");
   const progress = document.getElementById("heroProgress");
-
   if (!slides.length) return;
-
   let current = 0;
   let autoPlayId = null;
   let progressId = null;
@@ -259,7 +233,6 @@ function initHeroSlider() {
   function updateSlider(index) {
     const prev = current;
     current = (index + slides.length) % slides.length;
-
     slides.forEach((slide, i) => {
       if (i === current) {
         slide.classList.add("hero__slide--active");
@@ -278,13 +251,11 @@ function initHeroSlider() {
         slide.setAttribute("aria-hidden", "true");
       }
     });
-
     dots.forEach((dot, i) => {
       const active = i === current;
       dot.classList.toggle("hero__dot--active", active);
       dot.setAttribute("aria-selected", String(active));
     });
-
     resetProgress();
   }
 
@@ -297,7 +268,6 @@ function initHeroSlider() {
     clearInterval(progressId);
     elapsed = 0;
     const step = 50;
-
     progressId = setInterval(() => {
       elapsed += step;
       const pct = Math.min((elapsed / DURATION) * 100, 100);
@@ -308,7 +278,6 @@ function initHeroSlider() {
   function startAutoPlay() {
     stopAutoPlay();
     startProgress();
-
     autoPlayId = setInterval(() => {
       updateSlider(current + 1);
       startProgress();
@@ -326,12 +295,10 @@ function initHeroSlider() {
     updateSlider(current - 1);
     startAutoPlay();
   });
-
   nextBtn?.addEventListener("click", () => {
     updateSlider(current + 1);
     startAutoPlay();
   });
-
   dots.forEach((dot, i) => {
     dot.addEventListener("click", () => {
       updateSlider(i);
@@ -346,12 +313,10 @@ function initHeroSlider() {
   document.querySelectorAll(".hero__cta[data-nav-category]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const category = btn.getAttribute("data-nav-category") || "";
-
       if (isHomePage) {
         goToCatalog({ category });
         return;
       }
-
       state.category = category;
       state.currentPage = 1;
       clearDependentFilters();
@@ -364,7 +329,6 @@ function initHeroSlider() {
   });
 
   let touchStartX = 0;
-
   heroSection?.addEventListener(
     "touchstart",
     (e) => {
@@ -372,7 +336,6 @@ function initHeroSlider() {
     },
     { passive: true },
   );
-
   heroSection?.addEventListener(
     "touchend",
     (e) => {
@@ -394,13 +357,11 @@ function initMobileNav() {
   const btn = document.getElementById("mobileMenuBtn");
   const nav = document.getElementById("mainNav");
   if (!btn || !nav) return;
-
   btn.addEventListener("click", () => {
     const open = nav.classList.toggle("is-mobile-open");
     btn.classList.toggle("is-open", open);
     btn.setAttribute("aria-expanded", String(open));
   });
-
   document.addEventListener("click", (e) => {
     if (!nav.classList.contains("is-mobile-open")) return;
     if (!e.target.closest(".header")) {
@@ -416,7 +377,6 @@ function initCategoriesMenu() {
   const menu = document.getElementById("categoriesMenu");
   const wrap = document.getElementById("navCategories");
   if (!toggle || !menu) return;
-
   let closeTimer;
 
   function open() {
@@ -435,7 +395,6 @@ function initCategoriesMenu() {
   toggle.addEventListener("click", (e) => {
     e.stopPropagation();
     clearTimeout(closeTimer);
-
     if (menu.hidden) open();
     else close(0);
   });
@@ -465,17 +424,13 @@ function initViewToggle() {
   const wrap = document.getElementById("viewToggle");
   const grid = els.productsGrid;
   if (!wrap || !grid) return;
-
   wrap.addEventListener("click", (e) => {
     const btn = e.target.closest(".view-toggle__btn");
     if (!btn) return;
-
     const view = btn.dataset.view;
-
     wrap.querySelectorAll(".view-toggle__btn").forEach((b) => {
       b.classList.toggle("view-toggle__btn--active", b.dataset.view === view);
     });
-
     grid.classList.toggle("is-list", view === "list");
   });
 }
@@ -485,7 +440,6 @@ function initNavIndicator() {
   const nav = document.getElementById("mainNav");
   const inner = nav?.querySelector(".nav__inner");
   if (!inner) return;
-
   const indicator = document.createElement("div");
   indicator.className = "nav__indicator";
   inner.appendChild(indicator);
@@ -530,7 +484,9 @@ function initNavIndicator() {
 // ─── Filters ─────────────────────────────────────────────────────
 function buildFilters(products) {
   const categories = uniqueValues(products, "category");
-  const brands = uniqueValues(products, "brand");
+  // CORRECCIÓN: usa extractBrands para descomponer marcas compuestas
+  // (ej: "CITROEN-SUSUKI" aparece como "CITROEN" y "SUSUKI" por separado)
+  const brands = extractBrands(products);
   const rims = uniqueValues(products, "rim");
 
   if (els.filterCategory) {
@@ -560,66 +516,68 @@ function buildFilters(products) {
   updateRimFilterVisibility();
 }
 
+// CORRECCIÓN: el select de modelo ahora se habilita con categoría o marca,
+// sin requerir ambas. Muestra todos los modelos disponibles según el contexto.
 function updateModelFilter() {
   if (!els.filterModel) return;
 
   const brand = state.filters.brand;
   const category = state.category;
 
-  if (!brand) {
-    els.filterModel.innerHTML = `<option value="">Seleccione marca primero</option>`;
+  // Sin ningún criterio de filtro: mostrar placeholder deshabilitado
+  if (!brand && !category) {
+    els.filterModel.innerHTML = `<option value="">Seleccione marca o categoría primero</option>`;
     els.filterModel.disabled = true;
     return;
   }
 
   const models = extractModels(state.products, brand, category);
 
+  if (!models.length) {
+    els.filterModel.innerHTML = `<option value="">Sin modelos disponibles</option>`;
+    els.filterModel.disabled = true;
+    return;
+  }
+
   els.filterModel.innerHTML =
     `<option value="">Todos los modelos</option>` +
     models.map((m) => `<option value="${m}">${m}</option>`).join("");
-
   els.filterModel.disabled = false;
   els.filterModel.value = state.filters.model || "";
 }
+
 function updateRimFilterVisibility() {
   if (!els.filterRimGroup || !els.filterRim) return;
-
   const shouldShowRim = state.category === "TAZAS";
-
   els.filterRimGroup.hidden = !shouldShowRim;
-
   if (!shouldShowRim) {
     state.filters.rim = "";
     els.filterRim.value = "";
   }
 }
+
 function clearSidebarFilters() {
   state.category = "";
   state.filters = { brand: "", model: "", rim: "" };
   state.sort = "";
-
   if (els.filterCategory) els.filterCategory.value = "";
   if (els.filterBrand) els.filterBrand.value = "";
   if (els.filterRim) els.filterRim.value = "";
   if (els.sortSelect) els.sortSelect.value = "";
-
   if (els.filterModel) {
-    els.filterModel.innerHTML = `<option value="">Seleccione marca primero</option>`;
+    els.filterModel.innerHTML = `<option value="">Seleccione marca o categoría primero</option>`;
     els.filterModel.disabled = true;
   }
-
   setActiveNav(state.category);
   updateRimFilterVisibility();
 }
 
 function clearDependentFilters() {
   state.filters = { brand: "", model: "", rim: "" };
-
   if (els.filterBrand) els.filterBrand.value = "";
   if (els.filterRim) els.filterRim.value = "";
-
   if (els.filterModel) {
-    els.filterModel.innerHTML = `<option value="">Seleccione marca primero</option>`;
+    els.filterModel.innerHTML = `<option value="">Seleccione marca o categoría primero</option>`;
     els.filterModel.disabled = true;
   }
 }
@@ -627,11 +585,9 @@ function clearDependentFilters() {
 // ─── Category nav ────────────────────────────────────────────────
 function buildCategoryNav(products) {
   if (!els.categoryNav) return;
-
   const categories = [
     ...new Set(products.map((p) => p.category).filter(Boolean)),
   ].sort((a, b) => a.localeCompare(b));
-
   const items = [
     `<button class="nav-cat-item" data-nav-category="">
       <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -640,13 +596,11 @@ function buildCategoryNav(products) {
       Todos los productos
     </button>`,
   ];
-
   for (const cat of categories) {
     items.push(
       `<button class="nav-cat-item" data-nav-category="${cat}">${formatCategoryLabel(cat)}</button>`,
     );
   }
-
   els.categoryNav.innerHTML = items.join("");
 }
 
@@ -657,31 +611,25 @@ function setActiveNav(category) {
     a.classList.toggle("is-active", active);
     a.setAttribute("aria-current", active ? "page" : "false");
   });
-
   document
     .querySelectorAll(".nav-cat-item[data-nav-category]")
     .forEach((btn) => {
       const cat = btn.getAttribute("data-nav-category") ?? "";
       btn.classList.toggle("is-active", cat === category);
     });
-
   if (els.filterCategory) els.filterCategory.value = category || "";
 }
 
 // ─── Pagination ───────────────────────────────────────────────────
 function renderPagination(totalItems, currentPage, pageSize) {
   if (!els.pagination) return;
-
   const isHomeView = isHomePage;
   const totalPages = Math.ceil(totalItems / pageSize);
-
   if (isHomeView || totalPages <= 1) {
     els.pagination.innerHTML = "";
     return;
   }
-
   const frag = document.createDocumentFragment();
-
   const btn = (text, page, active, disabled, delay) => {
     const b = document.createElement("button");
     b.className = `pagination__btn${active ? " is-active" : ""}`;
@@ -692,13 +640,10 @@ function renderPagination(totalItems, currentPage, pageSize) {
     if (active) b.setAttribute("aria-current", "page");
     return b;
   };
-
   frag.appendChild(btn("←", currentPage - 1, false, currentPage === 1, 0));
-
   for (let i = 1; i <= totalPages; i++) {
     frag.appendChild(btn(i, i, i === currentPage, false, i));
   }
-
   frag.appendChild(
     btn(
       "→",
@@ -708,7 +653,6 @@ function renderPagination(totalItems, currentPage, pageSize) {
       totalPages + 1,
     ),
   );
-
   els.pagination.innerHTML = "";
   els.pagination.appendChild(frag);
 }
@@ -716,21 +660,17 @@ function renderPagination(totalItems, currentPage, pageSize) {
 // ─── Catalog UI update ────────────────────────────────────────────
 function updateCatalogUI({ isHomeView, totalItems }) {
   const resultsTitle = document.getElementById("resultsTitle");
-
   if (resultsTitle) {
     resultsTitle.textContent = isHomeView
       ? "Productos destacados"
       : "Resultados";
   }
-
   if (els.catalogSidebar) {
     els.catalogSidebar.hidden = isHomeView;
   }
-
   if (els.resultsSection) {
     els.resultsSection.classList.toggle("catalog--home", isHomeView);
   }
-
   if (els.resultsCount) {
     if (isHomeView) {
       els.resultsCount.textContent = "";
@@ -755,16 +695,13 @@ function updateCatalogUI({ isHomeView, totalItems }) {
 
 function sortProducts(products, sort) {
   const arr = [...products];
-
   switch (sort) {
     case "price-asc":
       arr.sort((a, b) => (a.price || 0) - (b.price || 0));
       break;
-
     case "price-desc":
       arr.sort((a, b) => (b.price || 0) - (a.price || 0));
       break;
-
     case "name-asc":
       arr.sort((a, b) =>
         String(a.detalle || a.description || "").localeCompare(
@@ -774,7 +711,6 @@ function sortProducts(products, sort) {
         ),
       );
       break;
-
     case "name-desc":
       arr.sort((a, b) =>
         String(b.detalle || b.description || "").localeCompare(
@@ -785,7 +721,6 @@ function sortProducts(products, sort) {
       );
       break;
   }
-
   return arr;
 }
 
@@ -800,22 +735,23 @@ function apply() {
   const filtered = baseProducts.filter((p) => {
     if (state.category && p.category !== state.category) return false;
     if (qNorm && !p.searchText.includes(qNorm)) return false;
-    if (state.filters.brand && p.brand !== state.filters.brand) return false;
-    if (state.filters.rim && p.rim !== state.filters.rim) return false;
-    if (
-      state.filters.model &&
-      extractModelFromProduct(p) !== state.filters.model
-    ) {
+    if (state.filters.brand && !brandMatches(p.brand, state.filters.brand))
       return false;
+    if (state.filters.rim && p.rim !== state.filters.rim) return false;
+    if (state.filters.model) {
+      if (
+        !p.compatibilidadesList ||
+        !p.compatibilidadesList.includes(state.filters.model)
+      ) {
+        return false;
+      }
     }
     return true;
   });
 
   const sorted = sortProducts(filtered, state.sort);
-
   const totalItems = sorted.length;
   const totalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
-
   if (state.currentPage > totalPages) state.currentPage = 1;
 
   const start = (state.currentPage - 1) * state.pageSize;
@@ -828,21 +764,16 @@ function apply() {
   if (els.productsGrid) {
     els.productsGrid.style.opacity = "0";
     els.productsGrid.style.transform = "translateY(12px)";
-
     setTimeout(() => {
       renderProducts(paginated, els);
       renderPagination(totalItems, state.currentPage, state.pageSize);
-
       const isHomeViewNow = isHomePage;
-
       if (els.emptyState) {
         els.emptyState.hidden = !(paginated.length === 0 && !isHomeViewNow);
       }
-
       els.productsGrid.querySelectorAll(".card").forEach((card) => {
         initCardTilt(card);
       });
-
       els.productsGrid.style.transition =
         "opacity 0.3s ease, transform 0.3s ease";
       els.productsGrid.style.opacity = "1";
@@ -856,13 +787,11 @@ function apply() {
 
 function scrollToResults() {
   if (!els.resultsSection) return;
-
   const offset = window.innerWidth <= 768 ? 80 : 120;
   const top =
     els.resultsSection.getBoundingClientRect().top +
     window.pageYOffset -
     offset;
-
   window.scrollTo({ top, behavior: "smooth" });
 }
 
@@ -870,19 +799,14 @@ function scrollToResults() {
 function handleNavCategoryClick(e) {
   const link = e.target.closest("[data-nav-category]");
   if (!link) return;
-
   if (link.tagName === "A" && !link.closest(".nav") && !link.closest(".footer"))
     return;
-
   e.preventDefault();
-
   const category = link.getAttribute("data-nav-category") || "";
-
   if (isHomePage) {
     goToCatalog({ category });
     return;
   }
-
   state.category = category;
   state.currentPage = 1;
   clearDependentFilters();
@@ -891,7 +815,6 @@ function handleNavCategoryClick(e) {
   updateRimFilterVisibility();
   apply();
   scrollToResults();
-
   document.getElementById("mainNav")?.classList.remove("is-mobile-open");
   document.getElementById("mobileMenuBtn")?.classList.remove("is-open");
 }
@@ -908,7 +831,6 @@ async function boot() {
     if (qFromUrl && els.q) {
       els.q.value = qFromUrl;
     }
-
     if (isCatalogPage && catFromUrl) {
       state.category = String(catFromUrl).trim().toUpperCase();
     }
@@ -921,7 +843,6 @@ async function boot() {
     initViewToggle();
     initNavIndicator();
     observeRevealItems();
-
     buildCategoryNav(state.products);
     setActiveNav(state.category);
     buildFilters(state.products);
@@ -937,12 +858,10 @@ async function boot() {
 
     els.searchBtn?.addEventListener("click", () => {
       const q = String(els.q?.value ?? "").trim();
-
       if (isHomePage) {
         goToCatalog({ q });
         return;
       }
-
       state.currentPage = 1;
       apply();
       scrollToResults();
@@ -950,14 +869,11 @@ async function boot() {
 
     els.q?.addEventListener("keydown", (e) => {
       if (e.key !== "Enter") return;
-
       const q = String(els.q?.value ?? "").trim();
-
       if (isHomePage) {
         goToCatalog({ q });
         return;
       }
-
       state.currentPage = 1;
       apply();
       scrollToResults();
@@ -969,6 +885,8 @@ async function boot() {
       state.currentPage = 1;
       clearDependentFilters();
       setActiveNav(state.category);
+      // CORRECCIÓN: updateModelFilter se llama aquí también para reflejar
+      // los modelos disponibles según la nueva categoría seleccionada.
       updateModelFilter();
       updateRimFilterVisibility();
       apply();
@@ -1021,10 +939,8 @@ async function boot() {
     els.pagination?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-page]");
       if (!btn || btn.disabled) return;
-
       const page = Number(btn.getAttribute("data-page"));
       if (!page || page < 1) return;
-
       state.currentPage = page;
       apply();
       scrollToResults();
@@ -1036,9 +952,7 @@ async function boot() {
     });
   } catch (err) {
     console.error("Error al iniciar la app:", err);
-
     if (els.productsGrid) els.productsGrid.innerHTML = "";
-
     if (els.resultsCount) {
       els.resultsCount.hidden = false;
       els.resultsCount.textContent = "No se pudieron cargar los productos";
