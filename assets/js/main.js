@@ -37,8 +37,6 @@ const isHomePage = pageMode === "home";
 const isCatalogPage = pageMode === "catalog";
 
 // ─── Pure helpers ────────────────────────────────────────────────
-// CORRECCIÓN: normalizeText eliminada de aquí, se importa desde data.js
-
 function getFeaturedProducts(products) {
   const espejos = products.filter((p) => p.category === "ESPEJOS").slice(0, 2);
   const tazas = products.filter((p) => p.category === "TAZAS").slice(0, 2);
@@ -78,7 +76,7 @@ function uniqueValues(products, key) {
   );
 }
 
-// Extrae las marcas simples descomponiendo valores compuestos (ej: "CITROEN-SUSUKI" → ["CITROEN", "SUSUKI"])
+// Descompone marcas compuestas (ej: "CITROEN-SUSUKI" → ["CITROEN", "SUSUKI"])
 function extractBrands(products) {
   const brands = new Set();
   products.forEach((p) => {
@@ -90,7 +88,7 @@ function extractBrands(products) {
   return [...brands].sort((a, b) => a.localeCompare(b, "es"));
 }
 
-// Verifica si un producto pertenece a una marca, soportando marcas compuestas
+// Soporta marcas compuestas: "CITROEN" matchea productos con brand "CITROEN-SUSUKI"
 function brandMatches(productBrand, filterBrand) {
   if (!filterBrand) return true;
   return productBrand
@@ -100,7 +98,6 @@ function brandMatches(productBrand, filterBrand) {
 }
 
 // Extrae modelos disponibles según marca y/o categoría
-// Soporta marcas compuestas: "CITROEN" matchea productos con brand "CITROEN-SUSUKI"
 function extractModels(products, brand = "", category = "") {
   const models = new Set();
   products.forEach((p) => {
@@ -473,19 +470,19 @@ function initNavIndicator() {
     else indicator.style.opacity = "0";
   });
 
-  inner.querySelectorAll(".nav__link").forEach((l) =>
-    activeObserver.observe(l, {
-      attributes: true,
-      attributeFilter: ["class"],
-    }),
-  );
+  inner
+    .querySelectorAll(".nav__link")
+    .forEach((l) =>
+      activeObserver.observe(l, {
+        attributes: true,
+        attributeFilter: ["class"],
+      }),
+    );
 }
 
 // ─── Filters ─────────────────────────────────────────────────────
 function buildFilters(products) {
   const categories = uniqueValues(products, "category");
-  // CORRECCIÓN: usa extractBrands para descomponer marcas compuestas
-  // (ej: "CITROEN-SUSUKI" aparece como "CITROEN" y "SUSUKI" por separado)
   const brands = extractBrands(products);
   const rims = uniqueValues(products, "rim");
 
@@ -516,15 +513,12 @@ function buildFilters(products) {
   updateRimFilterVisibility();
 }
 
-// CORRECCIÓN: el select de modelo ahora se habilita con categoría o marca,
-// sin requerir ambas. Muestra todos los modelos disponibles según el contexto.
+// El select de modelo se habilita con categoría o marca, sin requerir ambas
 function updateModelFilter() {
   if (!els.filterModel) return;
-
   const brand = state.filters.brand;
   const category = state.category;
 
-  // Sin ningún criterio de filtro: mostrar placeholder deshabilitado
   if (!brand && !category) {
     els.filterModel.innerHTML = `<option value="">Seleccione marca o categoría primero</option>`;
     els.filterModel.disabled = true;
@@ -546,6 +540,7 @@ function updateModelFilter() {
   els.filterModel.value = state.filters.model || "";
 }
 
+// El filtro de rodado solo es relevante para TAZAS
 function updateRimFilterVisibility() {
   if (!els.filterRimGroup || !els.filterRim) return;
   const shouldShowRim = state.category === "TAZAS";
@@ -623,9 +618,8 @@ function setActiveNav(category) {
 // ─── Pagination ───────────────────────────────────────────────────
 function renderPagination(totalItems, currentPage, pageSize) {
   if (!els.pagination) return;
-  const isHomeView = isHomePage;
   const totalPages = Math.ceil(totalItems / pageSize);
-  if (isHomeView || totalPages <= 1) {
+  if (isHomePage || totalPages <= 1) {
     els.pagination.innerHTML = "";
     return;
   }
@@ -665,9 +659,7 @@ function updateCatalogUI({ isHomeView, totalItems }) {
       ? "Productos destacados"
       : "Resultados";
   }
-  if (els.catalogSidebar) {
-    els.catalogSidebar.hidden = isHomeView;
-  }
+  if (els.catalogSidebar) els.catalogSidebar.hidden = isHomeView;
   if (els.resultsSection) {
     els.resultsSection.classList.toggle("catalog--home", isHomeView);
   }
@@ -734,7 +726,10 @@ function apply() {
 
   const filtered = baseProducts.filter((p) => {
     if (state.category && p.category !== state.category) return false;
-    if (qNorm && !p.searchText.includes(qNorm)) return false;
+    if (qNorm) {
+      const words = qNorm.split(/\s+/).filter(Boolean);
+      if (!words.every((word) => p.searchText.includes(word))) return false;
+    }
     if (state.filters.brand && !brandMatches(p.brand, state.filters.brand))
       return false;
     if (state.filters.rim && p.rim !== state.filters.rim) return false;
@@ -758,7 +753,6 @@ function apply() {
   const paginated = sorted.slice(start, start + state.pageSize);
 
   updateCatalogUI({ isHomeView, totalItems });
-
   if (els.emptyState) els.emptyState.hidden = true;
 
   if (els.productsGrid) {
@@ -767,13 +761,12 @@ function apply() {
     setTimeout(() => {
       renderProducts(paginated, els);
       renderPagination(totalItems, state.currentPage, state.pageSize);
-      const isHomeViewNow = isHomePage;
       if (els.emptyState) {
-        els.emptyState.hidden = !(paginated.length === 0 && !isHomeViewNow);
+        els.emptyState.hidden = !(paginated.length === 0 && !isHomePage);
       }
-      els.productsGrid.querySelectorAll(".card").forEach((card) => {
-        initCardTilt(card);
-      });
+      els.productsGrid
+        .querySelectorAll(".card")
+        .forEach((card) => initCardTilt(card));
       els.productsGrid.style.transition =
         "opacity 0.3s ease, transform 0.3s ease";
       els.productsGrid.style.opacity = "1";
@@ -828,9 +821,7 @@ async function boot() {
     const qFromUrl = urlParams.get("q");
     const catFromUrl = urlParams.get("cat");
 
-    if (qFromUrl && els.q) {
-      els.q.value = qFromUrl;
-    }
+    if (qFromUrl && els.q) els.q.value = qFromUrl;
     if (isCatalogPage && catFromUrl) {
       state.category = String(catFromUrl).trim().toUpperCase();
     }
@@ -849,6 +840,7 @@ async function boot() {
     apply();
 
     // ── Search
+    // En catálogo, el input filtra en tiempo real. Usar el buscador limpia los filtros del sidebar.
     if (isCatalogPage) {
       els.q?.addEventListener("input", () => {
         state.currentPage = 1;
@@ -862,6 +854,7 @@ async function boot() {
         goToCatalog({ q });
         return;
       }
+      clearSidebarFilters();
       state.currentPage = 1;
       apply();
       scrollToResults();
@@ -874,19 +867,20 @@ async function boot() {
         goToCatalog({ q });
         return;
       }
+      clearSidebarFilters();
       state.currentPage = 1;
       apply();
       scrollToResults();
     });
 
     // ── Filters
+    // Usar cualquier filtro del sidebar limpia el campo de búsqueda.
     els.filterCategory?.addEventListener("change", () => {
       state.category = els.filterCategory.value;
       state.currentPage = 1;
+      if (els.q) els.q.value = "";
       clearDependentFilters();
       setActiveNav(state.category);
-      // CORRECCIÓN: updateModelFilter se llama aquí también para reflejar
-      // los modelos disponibles según la nueva categoría seleccionada.
       updateModelFilter();
       updateRimFilterVisibility();
       apply();
@@ -896,6 +890,7 @@ async function boot() {
       state.filters.brand = els.filterBrand.value;
       state.filters.model = "";
       state.currentPage = 1;
+      if (els.q) els.q.value = "";
       updateModelFilter();
       apply();
     });
@@ -903,12 +898,14 @@ async function boot() {
     els.filterModel?.addEventListener("change", () => {
       state.filters.model = els.filterModel.value;
       state.currentPage = 1;
+      if (els.q) els.q.value = "";
       apply();
     });
 
     els.filterRim?.addEventListener("change", () => {
       state.filters.rim = els.filterRim.value;
       state.currentPage = 1;
+      if (els.q) els.q.value = "";
       apply();
     });
 

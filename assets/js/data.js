@@ -139,7 +139,7 @@ function csvToProducts(csvText) {
         rim,
         compatibilidadesList,
         searchText: normalizeText(
-          `${category} ${brand} ${code} ${description} ${detalle} ${compatString}`,
+          `${category} ${brand} ${code} ${description} ${detalle} ${descripcion} ${compatString}`,
         ),
       };
     })
