@@ -1,7 +1,6 @@
 import { loadProducts, normalizeText } from "./data.js";
 import { renderProducts } from "./render.js";
 import { initCartUI, setProductsIndex } from "./cart.js";
-
 // ─── Element refs ────────────────────────────────────────────────
 const els = {
   q: document.getElementById("q"),
@@ -22,7 +21,6 @@ const els = {
   emptyReset: document.getElementById("emptyReset"),
   sortSelect: document.getElementById("sortSelect"),
 };
-
 let state = {
   products: [],
   category: "",
@@ -31,11 +29,9 @@ let state = {
   sort: "",
   filters: { brand: "", model: "", rim: "" },
 };
-
 const pageMode = document.body.dataset.page || "home";
 const isHomePage = pageMode === "home";
 const isCatalogPage = pageMode === "catalog";
-
 // ─── Pure helpers ────────────────────────────────────────────────
 function getFeaturedProducts(products) {
   const espejos = products.filter((p) => p.category === "ESPEJOS").slice(0, 2);
@@ -57,7 +53,6 @@ function getFeaturedProducts(products) {
     ...deflectores,
   ];
 }
-
 function formatCategoryLabel(cat) {
   const map = {
     ESPEJOS: "Espejos",
@@ -69,13 +64,11 @@ function formatCategoryLabel(cat) {
   };
   return map[cat] || (cat ? cat.charAt(0) + cat.slice(1).toLowerCase() : "");
 }
-
 function uniqueValues(products, key) {
   return [...new Set(products.map((p) => p[key]).filter(Boolean))].sort(
     (a, b) => String(a).localeCompare(String(b), "es"),
   );
 }
-
 // Descompone marcas compuestas (ej: "CITROEN-SUSUKI" → ["CITROEN", "SUSUKI"])
 function extractBrands(products) {
   const brands = new Set();
@@ -87,7 +80,6 @@ function extractBrands(products) {
   });
   return [...brands].sort((a, b) => a.localeCompare(b, "es"));
 }
-
 // Soporta marcas compuestas: "CITROEN" matchea productos con brand "CITROEN-SUSUKI"
 function brandMatches(productBrand, filterBrand) {
   if (!filterBrand) return true;
@@ -96,7 +88,6 @@ function brandMatches(productBrand, filterBrand) {
     .map((b) => b.trim())
     .includes(filterBrand);
 }
-
 // Extrae modelos disponibles según marca y/o categoría
 function extractModels(products, brand = "", category = "") {
   const models = new Set();
@@ -107,7 +98,6 @@ function extractModels(products, brand = "", category = "") {
   });
   return [...models].sort((a, b) => a.localeCompare(b, "es"));
 }
-
 function goToCatalog({ category = "", q = "" } = {}) {
   const params = new URLSearchParams();
   if (category) params.set("cat", category);
@@ -115,7 +105,39 @@ function goToCatalog({ category = "", q = "" } = {}) {
   const queryString = params.toString();
   window.location.href = `./catalogo.html${queryString ? `?${queryString}` : ""}`;
 }
-
+// ─── Fuzzy search ─────────────────────────────────────────────────
+function levenshtein(a, b) {
+  const m = a.length,
+    n = b.length;
+  const dp = Array.from({ length: m + 1 }, (_, i) =>
+    Array.from({ length: n + 1 }, (_, j) => (i === 0 ? j : j === 0 ? i : 0)),
+  );
+  for (let i = 1; i <= m; i++) {
+    for (let j = 1; j <= n; j++) {
+      dp[i][j] =
+        a[i - 1] === b[j - 1]
+          ? dp[i - 1][j - 1]
+          : 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+    }
+  }
+  return dp[m][n];
+}
+function fuzzyScore(product, queryWords) {
+  const tokens = product.searchText.split(/\s+/).filter(Boolean);
+  let totalScore = 0;
+  for (const qw of queryWords) {
+    let best = Infinity;
+    for (const token of tokens) {
+      // solo comparar contra tokens de longitud similar (evita falsos positivos)
+      if (Math.abs(token.length - qw.length) > 4) continue;
+      const d = levenshtein(qw, token);
+      if (d < best) best = d;
+    }
+    // si ningún token fue comparable, penalizar
+    totalScore += best === Infinity ? 10 : best;
+  }
+  return totalScore; // menor = más parecido
+}
 // ─── Intersection Observer ───────────────────────────────────────
 const revealObserver = new IntersectionObserver(
   (entries, obs) => {
@@ -127,13 +149,11 @@ const revealObserver = new IntersectionObserver(
   },
   { rootMargin: "0px 0px -60px 0px", threshold: 0.08 },
 );
-
 function observeRevealItems() {
   document
     .querySelectorAll(".reveal-item")
     .forEach((el) => revealObserver.observe(el));
 }
-
 // ─── Header scroll ───────────────────────────────────────────────
 (function initHeaderScroll() {
   const header = document.getElementById("mainHeader");
@@ -143,7 +163,6 @@ function observeRevealItems() {
   window.addEventListener("scroll", handler, { passive: true });
   handler();
 })();
-
 // ─── Cursor glow ─────────────────────────────────────────────────
 (function initCursorGlow() {
   const glow = document.getElementById("cursorGlow");
@@ -163,7 +182,6 @@ function observeRevealItems() {
     { passive: true },
   );
 })();
-
 // ─── Card tilt ───────────────────────────────────────────────────
 function initCardTilt(card) {
   if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -179,7 +197,6 @@ function initCardTilt(card) {
     card.style.transition = "";
   });
 }
-
 // ─── Fly to cart ─────────────────────────────────────────────────
 function flyToCart(sourceEl) {
   const flyItem = document.getElementById("flyItem");
@@ -212,7 +229,6 @@ function flyToCart(sourceEl) {
     { once: true },
   );
 }
-
 // ─── Hero slider ─────────────────────────────────────────────────
 function initHeroSlider() {
   const slides = Array.from(document.querySelectorAll(".hero__slide"));
@@ -226,7 +242,6 @@ function initHeroSlider() {
   let progressId = null;
   let elapsed = 0;
   const DURATION = 6000;
-
   function updateSlider(index) {
     const prev = current;
     current = (index + slides.length) % slides.length;
@@ -255,12 +270,10 @@ function initHeroSlider() {
     });
     resetProgress();
   }
-
   function resetProgress() {
     elapsed = 0;
     if (progress) progress.style.width = "0%";
   }
-
   function startProgress() {
     clearInterval(progressId);
     elapsed = 0;
@@ -271,7 +284,6 @@ function initHeroSlider() {
       if (progress) progress.style.width = `${pct}%`;
     }, step);
   }
-
   function startAutoPlay() {
     stopAutoPlay();
     startProgress();
@@ -280,14 +292,12 @@ function initHeroSlider() {
       startProgress();
     }, DURATION);
   }
-
   function stopAutoPlay() {
     clearInterval(autoPlayId);
     clearInterval(progressId);
     autoPlayId = null;
     progressId = null;
   }
-
   prevBtn?.addEventListener("click", () => {
     updateSlider(current - 1);
     startAutoPlay();
@@ -302,11 +312,9 @@ function initHeroSlider() {
       startAutoPlay();
     });
   });
-
   const heroSection = document.getElementById("heroSection");
   heroSection?.addEventListener("mouseenter", stopAutoPlay);
   heroSection?.addEventListener("mouseleave", startAutoPlay);
-
   document.querySelectorAll(".hero__cta[data-nav-category]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const category = btn.getAttribute("data-nav-category") || "";
@@ -324,7 +332,6 @@ function initHeroSlider() {
       scrollToResults();
     });
   });
-
   let touchStartX = 0;
   heroSection?.addEventListener(
     "touchstart",
@@ -344,11 +351,9 @@ function initHeroSlider() {
     },
     { passive: true },
   );
-
   updateSlider(0);
   startAutoPlay();
 }
-
 // ─── Mobile nav ──────────────────────────────────────────────────
 function initMobileNav() {
   const btn = document.getElementById("mobileMenuBtn");
@@ -367,7 +372,6 @@ function initMobileNav() {
     }
   });
 }
-
 // ─── Categories dropdown ─────────────────────────────────────────
 function initCategoriesMenu() {
   const toggle = document.getElementById("categoriesToggle");
@@ -375,47 +379,39 @@ function initCategoriesMenu() {
   const wrap = document.getElementById("navCategories");
   if (!toggle || !menu) return;
   let closeTimer;
-
   function open() {
     clearTimeout(closeTimer);
     menu.hidden = false;
     toggle.setAttribute("aria-expanded", "true");
   }
-
   function close(delay = 200) {
     closeTimer = setTimeout(() => {
       menu.hidden = true;
       toggle.setAttribute("aria-expanded", "false");
     }, delay);
   }
-
   toggle.addEventListener("click", (e) => {
     e.stopPropagation();
     clearTimeout(closeTimer);
     if (menu.hidden) open();
     else close(0);
   });
-
   if (window.innerWidth > 900) {
     wrap?.addEventListener("mouseenter", () => open());
     wrap?.addEventListener("mouseleave", () => close());
   }
-
   document.addEventListener("click", (e) => {
     if (menu.hidden) return;
     if (e.target.closest(".nav-categories")) return;
     close(0);
   });
-
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") close(0);
   });
-
   menu.addEventListener("click", (e) => {
     if (e.target.closest("[data-nav-category]")) close(0);
   });
 }
-
 // ─── View toggle ─────────────────────────────────────────────────
 function initViewToggle() {
   const wrap = document.getElementById("viewToggle");
@@ -431,7 +427,6 @@ function initViewToggle() {
     grid.classList.toggle("is-list", view === "list");
   });
 }
-
 // ─── Nav sliding indicator ───────────────────────────────────────
 function initNavIndicator() {
   const nav = document.getElementById("mainNav");
@@ -440,7 +435,6 @@ function initNavIndicator() {
   const indicator = document.createElement("div");
   indicator.className = "nav__indicator";
   inner.appendChild(indicator);
-
   function moveIndicator(el) {
     const navRect = inner.getBoundingClientRect();
     const elRect = el.getBoundingClientRect();
@@ -448,7 +442,6 @@ function initNavIndicator() {
     indicator.style.width = `${elRect.width}px`;
     indicator.style.opacity = "1";
   }
-
   inner.querySelectorAll(".nav__link").forEach((link) => {
     link.addEventListener("mouseenter", () => moveIndicator(link));
     link.addEventListener("mouseleave", () => {
@@ -463,29 +456,23 @@ function initNavIndicator() {
       else indicator.style.opacity = "0";
     });
   });
-
   const activeObserver = new MutationObserver(() => {
     const active = inner.querySelector(".nav__link.is-active");
     if (active) moveIndicator(active);
     else indicator.style.opacity = "0";
   });
-
-  inner
-    .querySelectorAll(".nav__link")
-    .forEach((l) =>
-      activeObserver.observe(l, {
-        attributes: true,
-        attributeFilter: ["class"],
-      }),
-    );
+  inner.querySelectorAll(".nav__link").forEach((l) =>
+    activeObserver.observe(l, {
+      attributes: true,
+      attributeFilter: ["class"],
+    }),
+  );
 }
-
 // ─── Filters ─────────────────────────────────────────────────────
 function buildFilters(products) {
   const categories = uniqueValues(products, "category");
   const brands = extractBrands(products);
   const rims = uniqueValues(products, "rim");
-
   if (els.filterCategory) {
     els.filterCategory.innerHTML =
       `<option value="">Todas las categorías</option>` +
@@ -494,52 +481,43 @@ function buildFilters(products) {
         .join("");
     els.filterCategory.value = state.category;
   }
-
   if (els.filterBrand) {
     els.filterBrand.innerHTML =
       `<option value="">Todas las marcas</option>` +
       brands.map((b) => `<option value="${b}">${b}</option>`).join("");
     els.filterBrand.value = state.filters.brand;
   }
-
   if (els.filterRim) {
     els.filterRim.innerHTML =
       `<option value="">Todos los rodados</option>` +
       rims.map((r) => `<option value="${r}">${r}</option>`).join("");
     els.filterRim.value = state.filters.rim;
   }
-
   updateModelFilter();
   updateRimFilterVisibility();
 }
-
 // El select de modelo se habilita con categoría o marca, sin requerir ambas
 function updateModelFilter() {
   if (!els.filterModel) return;
   const brand = state.filters.brand;
   const category = state.category;
-
   if (!brand && !category) {
     els.filterModel.innerHTML = `<option value="">Seleccione marca o categoría primero</option>`;
     els.filterModel.disabled = true;
     return;
   }
-
   const models = extractModels(state.products, brand, category);
-
   if (!models.length) {
     els.filterModel.innerHTML = `<option value="">Sin modelos disponibles</option>`;
     els.filterModel.disabled = true;
     return;
   }
-
   els.filterModel.innerHTML =
     `<option value="">Todos los modelos</option>` +
     models.map((m) => `<option value="${m}">${m}</option>`).join("");
   els.filterModel.disabled = false;
   els.filterModel.value = state.filters.model || "";
 }
-
 // El filtro de rodado solo es relevante para TAZAS
 function updateRimFilterVisibility() {
   if (!els.filterRimGroup || !els.filterRim) return;
@@ -550,7 +528,6 @@ function updateRimFilterVisibility() {
     els.filterRim.value = "";
   }
 }
-
 function clearSidebarFilters() {
   state.category = "";
   state.filters = { brand: "", model: "", rim: "" };
@@ -566,7 +543,6 @@ function clearSidebarFilters() {
   setActiveNav(state.category);
   updateRimFilterVisibility();
 }
-
 function clearDependentFilters() {
   state.filters = { brand: "", model: "", rim: "" };
   if (els.filterBrand) els.filterBrand.value = "";
@@ -576,7 +552,6 @@ function clearDependentFilters() {
     els.filterModel.disabled = true;
   }
 }
-
 // ─── Category nav ────────────────────────────────────────────────
 function buildCategoryNav(products) {
   if (!els.categoryNav) return;
@@ -598,7 +573,6 @@ function buildCategoryNav(products) {
   }
   els.categoryNav.innerHTML = items.join("");
 }
-
 function setActiveNav(category) {
   document.querySelectorAll(".nav__link[data-nav-category]").forEach((a) => {
     const cat = a.getAttribute("data-nav-category") ?? "";
@@ -614,7 +588,6 @@ function setActiveNav(category) {
     });
   if (els.filterCategory) els.filterCategory.value = category || "";
 }
-
 // ─── Pagination ───────────────────────────────────────────────────
 function renderPagination(totalItems, currentPage, pageSize) {
   if (!els.pagination) return;
@@ -650,7 +623,6 @@ function renderPagination(totalItems, currentPage, pageSize) {
   els.pagination.innerHTML = "";
   els.pagination.appendChild(frag);
 }
-
 // ─── Catalog UI update ────────────────────────────────────────────
 function updateCatalogUI({ isHomeView, totalItems }) {
   const resultsTitle = document.getElementById("resultsTitle");
@@ -684,7 +656,6 @@ function updateCatalogUI({ isHomeView, totalItems }) {
     }
   }
 }
-
 function sortProducts(products, sort) {
   const arr = [...products];
   switch (sort) {
@@ -715,7 +686,6 @@ function sortProducts(products, sort) {
   }
   return arr;
 }
-
 // ─── Apply filters & render ───────────────────────────────────────
 function apply() {
   const qNorm = normalizeText(els.q?.value ?? "");
@@ -723,7 +693,6 @@ function apply() {
   const baseProducts = isHomePage
     ? getFeaturedProducts(state.products)
     : state.products;
-
   const filtered = baseProducts.filter((p) => {
     if (state.category && p.category !== state.category) return false;
     if (qNorm) {
@@ -746,13 +715,56 @@ function apply() {
 
   const sorted = sortProducts(filtered, state.sort);
   const totalItems = sorted.length;
-  const totalPages = Math.max(1, Math.ceil(totalItems / state.pageSize));
+
+  // ── Fuzzy fallback: cuando no hay resultados exactos y hay query activo
+  const queryWords = qNorm.split(/\s+/).filter(Boolean);
+  let isFuzzy = false;
+  let displayProducts = sorted;
+
+  if (totalItems === 0 && queryWords.length > 0 && !isHomePage) {
+    const FUZZY_THRESHOLD = 3; // distancia máxima por palabra aceptada
+    const FUZZY_MAX = 8; // cuántos resultados sugerir
+
+    const scored = state.products
+      .map((p) => ({ p, score: fuzzyScore(p, queryWords) }))
+      .filter(({ score }) => score / queryWords.length <= FUZZY_THRESHOLD)
+      .sort((a, b) => a.score - b.score)
+      .slice(0, FUZZY_MAX)
+      .map(({ p }) => p);
+
+    if (scored.length > 0) {
+      isFuzzy = true;
+      displayProducts = scored;
+    }
+  }
+
+  const totalPages = Math.max(
+    1,
+    isFuzzy ? 1 : Math.ceil(totalItems / state.pageSize),
+  );
   if (state.currentPage > totalPages) state.currentPage = 1;
-
   const start = (state.currentPage - 1) * state.pageSize;
-  const paginated = sorted.slice(start, start + state.pageSize);
+  const paginated = isFuzzy
+    ? displayProducts
+    : displayProducts.slice(start, start + state.pageSize);
 
-  updateCatalogUI({ isHomeView, totalItems });
+  updateCatalogUI({ isHomeView, totalItems: isFuzzy ? 0 : totalItems });
+
+  // ── Banner de sugerencia fuzzy
+  let fuzzyBanner = document.getElementById("fuzzyBanner");
+  if (isFuzzy) {
+    if (!fuzzyBanner) {
+      fuzzyBanner = document.createElement("p");
+      fuzzyBanner.id = "fuzzyBanner";
+      fuzzyBanner.className = "fuzzy-banner";
+      els.productsGrid?.parentNode?.insertBefore(fuzzyBanner, els.productsGrid);
+    }
+    fuzzyBanner.hidden = false;
+    fuzzyBanner.textContent = `No encontramos "${els.q?.value.trim()}". Mostrando resultados similares:`;
+  } else {
+    if (fuzzyBanner) fuzzyBanner.hidden = true;
+  }
+
   if (els.emptyState) els.emptyState.hidden = true;
 
   if (els.productsGrid) {
@@ -760,7 +772,11 @@ function apply() {
     els.productsGrid.style.transform = "translateY(12px)";
     setTimeout(() => {
       renderProducts(paginated, els);
-      renderPagination(totalItems, state.currentPage, state.pageSize);
+      if (!isFuzzy) {
+        renderPagination(totalItems, state.currentPage, state.pageSize);
+      } else {
+        if (els.pagination) els.pagination.innerHTML = "";
+      }
       if (els.emptyState) {
         els.emptyState.hidden = !(paginated.length === 0 && !isHomePage);
       }
@@ -774,10 +790,11 @@ function apply() {
     }, 160);
   } else {
     renderProducts(paginated, els);
-    renderPagination(totalItems, state.currentPage, state.pageSize);
+    if (!isFuzzy) {
+      renderPagination(totalItems, state.currentPage, state.pageSize);
+    }
   }
 }
-
 function scrollToResults() {
   if (!els.resultsSection) return;
   const offset = window.innerWidth <= 768 ? 80 : 120;
@@ -787,7 +804,6 @@ function scrollToResults() {
     offset;
   window.scrollTo({ top, behavior: "smooth" });
 }
-
 // ─── Nav click handler ────────────────────────────────────────────
 function handleNavCategoryClick(e) {
   const link = e.target.closest("[data-nav-category]");
@@ -811,21 +827,17 @@ function handleNavCategoryClick(e) {
   document.getElementById("mainNav")?.classList.remove("is-mobile-open");
   document.getElementById("mobileMenuBtn")?.classList.remove("is-open");
 }
-
 // ─── Boot ─────────────────────────────────────────────────────────
 async function boot() {
   try {
     state.products = await loadProducts();
-
     const urlParams = new URLSearchParams(window.location.search);
     const qFromUrl = urlParams.get("q");
     const catFromUrl = urlParams.get("cat");
-
     if (qFromUrl && els.q) els.q.value = qFromUrl;
     if (isCatalogPage && catFromUrl) {
       state.category = String(catFromUrl).trim().toUpperCase();
     }
-
     setProductsIndex(state.products);
     initCartUI();
     initHeroSlider();
@@ -838,7 +850,6 @@ async function boot() {
     setActiveNav(state.category);
     buildFilters(state.products);
     apply();
-
     // ── Search
     // En catálogo, el input filtra en tiempo real. Usar el buscador limpia los filtros del sidebar.
     if (isCatalogPage) {
@@ -847,7 +858,6 @@ async function boot() {
         apply();
       });
     }
-
     els.searchBtn?.addEventListener("click", () => {
       const q = String(els.q?.value ?? "").trim();
       if (isHomePage) {
@@ -859,7 +869,6 @@ async function boot() {
       apply();
       scrollToResults();
     });
-
     els.q?.addEventListener("keydown", (e) => {
       if (e.key !== "Enter") return;
       const q = String(els.q?.value ?? "").trim();
@@ -872,7 +881,6 @@ async function boot() {
       apply();
       scrollToResults();
     });
-
     // ── Filters
     // Usar cualquier filtro del sidebar limpia el campo de búsqueda.
     els.filterCategory?.addEventListener("change", () => {
@@ -885,7 +893,6 @@ async function boot() {
       updateRimFilterVisibility();
       apply();
     });
-
     els.filterBrand?.addEventListener("change", () => {
       state.filters.brand = els.filterBrand.value;
       state.filters.model = "";
@@ -894,44 +901,37 @@ async function boot() {
       updateModelFilter();
       apply();
     });
-
     els.filterModel?.addEventListener("change", () => {
       state.filters.model = els.filterModel.value;
       state.currentPage = 1;
       if (els.q) els.q.value = "";
       apply();
     });
-
     els.filterRim?.addEventListener("change", () => {
       state.filters.rim = els.filterRim.value;
       state.currentPage = 1;
       if (els.q) els.q.value = "";
       apply();
     });
-
     els.sortSelect?.addEventListener("change", () => {
       state.sort = els.sortSelect.value;
       state.currentPage = 1;
       apply();
     });
-
     els.clearFiltersBtn?.addEventListener("click", () => {
       clearSidebarFilters();
       if (els.q) els.q.value = "";
       state.currentPage = 1;
       apply();
     });
-
     els.emptyReset?.addEventListener("click", () => {
       clearSidebarFilters();
       if (els.q) els.q.value = "";
       state.currentPage = 1;
       apply();
     });
-
     // ── Category nav
     document.addEventListener("click", handleNavCategoryClick);
-
     // ── Pagination
     els.pagination?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-page]");
@@ -942,13 +942,13 @@ async function boot() {
       apply();
       scrollToResults();
     });
-
     // ── Fly to cart
     document.addEventListener("fly-to-cart", (e) => {
       flyToCart(e.detail.sourceEl);
     });
   } catch (err) {
     console.error("Error al iniciar la app:", err);
+    console.error("Stack:", err.stack);
     if (els.productsGrid) els.productsGrid.innerHTML = "";
     if (els.resultsCount) {
       els.resultsCount.hidden = false;
@@ -956,5 +956,4 @@ async function boot() {
     }
   }
 }
-
 boot();
