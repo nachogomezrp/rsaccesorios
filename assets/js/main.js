@@ -1,6 +1,7 @@
 import { loadProducts, normalizeText } from "./data.js";
 import { renderProducts } from "./render.js";
 import { initCartUI, setProductsIndex } from "./cart.js";
+
 // ─── Element refs ────────────────────────────────────────────────
 const els = {
   q: document.getElementById("q"),
@@ -20,7 +21,13 @@ const els = {
   clearFiltersBtn: document.getElementById("clearFiltersBtn"),
   emptyReset: document.getElementById("emptyReset"),
   sortSelect: document.getElementById("sortSelect"),
+  // NUEVAS REFS PARA MOBILE FILTERS:
+  mobileFiltersBtn: document.getElementById("mobileFiltersBtn"),
+  closeFiltersBtn: document.getElementById("closeFiltersBtn"),
+  mobileFiltersOverlay: document.getElementById("mobileFiltersOverlay"),
+  applyFiltersBtn: document.getElementById("applyFiltersBtn"),
 };
+
 let state = {
   products: [],
   category: "",
@@ -29,9 +36,11 @@ let state = {
   sort: "",
   filters: { brand: "", model: "", rim: "" },
 };
+
 const pageMode = document.body.dataset.page || "home";
 const isHomePage = pageMode === "home";
 const isCatalogPage = pageMode === "catalog";
+
 // ─── Pure helpers ────────────────────────────────────────────────
 function getFeaturedProducts(products) {
   const espejos = products.filter((p) => p.category === "ESPEJOS").slice(0, 2);
@@ -53,6 +62,7 @@ function getFeaturedProducts(products) {
     ...deflectores,
   ];
 }
+
 function formatCategoryLabel(cat) {
   const map = {
     ESPEJOS: "Espejos",
@@ -64,11 +74,13 @@ function formatCategoryLabel(cat) {
   };
   return map[cat] || (cat ? cat.charAt(0) + cat.slice(1).toLowerCase() : "");
 }
+
 function uniqueValues(products, key) {
   return [...new Set(products.map((p) => p[key]).filter(Boolean))].sort(
     (a, b) => String(a).localeCompare(String(b), "es"),
   );
 }
+
 // Descompone marcas compuestas (ej: "CITROEN-SUSUKI" → ["CITROEN", "SUSUKI"])
 function extractBrands(products) {
   const brands = new Set();
@@ -80,6 +92,7 @@ function extractBrands(products) {
   });
   return [...brands].sort((a, b) => a.localeCompare(b, "es"));
 }
+
 // Soporta marcas compuestas: "CITROEN" matchea productos con brand "CITROEN-SUSUKI"
 function brandMatches(productBrand, filterBrand) {
   if (!filterBrand) return true;
@@ -88,6 +101,7 @@ function brandMatches(productBrand, filterBrand) {
     .map((b) => b.trim())
     .includes(filterBrand);
 }
+
 // Extrae modelos disponibles según marca y/o categoría
 function extractModels(products, brand = "", category = "") {
   const models = new Set();
@@ -98,6 +112,7 @@ function extractModels(products, brand = "", category = "") {
   });
   return [...models].sort((a, b) => a.localeCompare(b, "es"));
 }
+
 function goToCatalog({ category = "", q = "" } = {}) {
   const params = new URLSearchParams();
   if (category) params.set("cat", category);
@@ -105,6 +120,7 @@ function goToCatalog({ category = "", q = "" } = {}) {
   const queryString = params.toString();
   window.location.href = `./catalogo.html${queryString ? `?${queryString}` : ""}`;
 }
+
 // ─── Fuzzy search ─────────────────────────────────────────────────
 function levenshtein(a, b) {
   const m = a.length,
@@ -122,6 +138,7 @@ function levenshtein(a, b) {
   }
   return dp[m][n];
 }
+
 function fuzzyScore(product, queryWords) {
   const tokens = product.searchText.split(/\s+/).filter(Boolean);
   let totalScore = 0;
@@ -138,6 +155,7 @@ function fuzzyScore(product, queryWords) {
   }
   return totalScore; // menor = más parecido
 }
+
 // ─── Intersection Observer ───────────────────────────────────────
 const revealObserver = new IntersectionObserver(
   (entries, obs) => {
@@ -149,11 +167,13 @@ const revealObserver = new IntersectionObserver(
   },
   { rootMargin: "0px 0px -60px 0px", threshold: 0.08 },
 );
+
 function observeRevealItems() {
   document
     .querySelectorAll(".reveal-item")
     .forEach((el) => revealObserver.observe(el));
 }
+
 // ─── Header scroll ───────────────────────────────────────────────
 (function initHeaderScroll() {
   const header = document.getElementById("mainHeader");
@@ -163,6 +183,7 @@ function observeRevealItems() {
   window.addEventListener("scroll", handler, { passive: true });
   handler();
 })();
+
 // ─── Cursor glow ─────────────────────────────────────────────────
 (function initCursorGlow() {
   const glow = document.getElementById("cursorGlow");
@@ -182,6 +203,7 @@ function observeRevealItems() {
     { passive: true },
   );
 })();
+
 // ─── Card tilt ───────────────────────────────────────────────────
 function initCardTilt(card) {
   if (window.matchMedia("(pointer: coarse)").matches) return;
@@ -197,6 +219,7 @@ function initCardTilt(card) {
     card.style.transition = "";
   });
 }
+
 // ─── Fly to cart ─────────────────────────────────────────────────
 function flyToCart(sourceEl) {
   const flyItem = document.getElementById("flyItem");
@@ -229,6 +252,7 @@ function flyToCart(sourceEl) {
     { once: true },
   );
 }
+
 // ─── Hero slider ─────────────────────────────────────────────────
 function initHeroSlider() {
   const slides = Array.from(document.querySelectorAll(".hero__slide"));
@@ -354,6 +378,7 @@ function initHeroSlider() {
   updateSlider(0);
   startAutoPlay();
 }
+
 // ─── Mobile nav ──────────────────────────────────────────────────
 function initMobileNav() {
   const btn = document.getElementById("mobileMenuBtn");
@@ -372,6 +397,7 @@ function initMobileNav() {
     }
   });
 }
+
 // ─── Categories dropdown ─────────────────────────────────────────
 function initCategoriesMenu() {
   const toggle = document.getElementById("categoriesToggle");
@@ -412,6 +438,7 @@ function initCategoriesMenu() {
     if (e.target.closest("[data-nav-category]")) close(0);
   });
 }
+
 // ─── View toggle ─────────────────────────────────────────────────
 function initViewToggle() {
   const wrap = document.getElementById("viewToggle");
@@ -427,6 +454,7 @@ function initViewToggle() {
     grid.classList.toggle("is-list", view === "list");
   });
 }
+
 // ─── Nav sliding indicator ───────────────────────────────────────
 function initNavIndicator() {
   const nav = document.getElementById("mainNav");
@@ -468,6 +496,7 @@ function initNavIndicator() {
     }),
   );
 }
+
 // ─── Filters ─────────────────────────────────────────────────────
 function buildFilters(products) {
   const categories = uniqueValues(products, "category");
@@ -496,6 +525,7 @@ function buildFilters(products) {
   updateModelFilter();
   updateRimFilterVisibility();
 }
+
 // El select de modelo se habilita con categoría o marca, sin requerir ambas
 function updateModelFilter() {
   if (!els.filterModel) return;
@@ -518,6 +548,7 @@ function updateModelFilter() {
   els.filterModel.disabled = false;
   els.filterModel.value = state.filters.model || "";
 }
+
 // El filtro de rodado solo es relevante para TAZAS
 function updateRimFilterVisibility() {
   if (!els.filterRimGroup || !els.filterRim) return;
@@ -528,6 +559,7 @@ function updateRimFilterVisibility() {
     els.filterRim.value = "";
   }
 }
+
 function clearSidebarFilters() {
   state.category = "";
   state.filters = { brand: "", model: "", rim: "" };
@@ -543,6 +575,7 @@ function clearSidebarFilters() {
   setActiveNav(state.category);
   updateRimFilterVisibility();
 }
+
 function clearDependentFilters() {
   state.filters = { brand: "", model: "", rim: "" };
   if (els.filterBrand) els.filterBrand.value = "";
@@ -552,6 +585,7 @@ function clearDependentFilters() {
     els.filterModel.disabled = true;
   }
 }
+
 // ─── Category nav ────────────────────────────────────────────────
 function buildCategoryNav(products) {
   if (!els.categoryNav) return;
@@ -573,6 +607,7 @@ function buildCategoryNav(products) {
   }
   els.categoryNav.innerHTML = items.join("");
 }
+
 function setActiveNav(category) {
   document.querySelectorAll(".nav__link[data-nav-category]").forEach((a) => {
     const cat = a.getAttribute("data-nav-category") ?? "";
@@ -588,6 +623,7 @@ function setActiveNav(category) {
     });
   if (els.filterCategory) els.filterCategory.value = category || "";
 }
+
 // ─── Pagination ───────────────────────────────────────────────────
 function renderPagination(totalItems, currentPage, pageSize) {
   if (!els.pagination) return;
@@ -623,6 +659,7 @@ function renderPagination(totalItems, currentPage, pageSize) {
   els.pagination.innerHTML = "";
   els.pagination.appendChild(frag);
 }
+
 // ─── Catalog UI update ────────────────────────────────────────────
 function updateCatalogUI({ isHomeView, totalItems }) {
   const resultsTitle = document.getElementById("resultsTitle");
@@ -656,6 +693,7 @@ function updateCatalogUI({ isHomeView, totalItems }) {
     }
   }
 }
+
 function sortProducts(products, sort) {
   const arr = [...products];
   switch (sort) {
@@ -686,6 +724,7 @@ function sortProducts(products, sort) {
   }
   return arr;
 }
+
 // ─── Apply filters & render ───────────────────────────────────────
 function apply() {
   const qNorm = normalizeText(els.q?.value ?? "");
@@ -795,6 +834,7 @@ function apply() {
     }
   }
 }
+
 function scrollToResults() {
   if (!els.resultsSection) return;
   const offset = window.innerWidth <= 768 ? 80 : 120;
@@ -804,6 +844,7 @@ function scrollToResults() {
     offset;
   window.scrollTo({ top, behavior: "smooth" });
 }
+
 // ─── Nav click handler ────────────────────────────────────────────
 function handleNavCategoryClick(e) {
   const link = e.target.closest("[data-nav-category]");
@@ -827,6 +868,16 @@ function handleNavCategoryClick(e) {
   document.getElementById("mainNav")?.classList.remove("is-mobile-open");
   document.getElementById("mobileMenuBtn")?.classList.remove("is-open");
 }
+
+// ─── Lógica para Mobile Filters Sheet ─────────────────────────────
+function toggleMobileFilters(show) {
+  if (els.catalogSidebar && els.mobileFiltersOverlay) {
+    els.catalogSidebar.classList.toggle("is-open", show);
+    els.mobileFiltersOverlay.classList.toggle("is-open", show);
+    document.body.classList.toggle("no-scroll", show);
+  }
+}
+
 // ─── Boot ─────────────────────────────────────────────────────────
 async function boot() {
   try {
@@ -850,6 +901,21 @@ async function boot() {
     setActiveNav(state.category);
     buildFilters(state.products);
     apply();
+
+    // ── Bind de Mobile Filters Sheet
+    els.mobileFiltersBtn?.addEventListener("click", () =>
+      toggleMobileFilters(true),
+    );
+    els.closeFiltersBtn?.addEventListener("click", () =>
+      toggleMobileFilters(false),
+    );
+    els.mobileFiltersOverlay?.addEventListener("click", () =>
+      toggleMobileFilters(false),
+    );
+    els.applyFiltersBtn?.addEventListener("click", () =>
+      toggleMobileFilters(false),
+    ); // Cierra al "Aplicar"
+
     // ── Search
     // En catálogo, el input filtra en tiempo real. Usar el buscador limpia los filtros del sidebar.
     if (isCatalogPage) {
@@ -881,6 +947,7 @@ async function boot() {
       apply();
       scrollToResults();
     });
+
     // ── Filters
     // Usar cualquier filtro del sidebar limpia el campo de búsqueda.
     els.filterCategory?.addEventListener("change", () => {
@@ -923,6 +990,7 @@ async function boot() {
       if (els.q) els.q.value = "";
       state.currentPage = 1;
       apply();
+      toggleMobileFilters(false); // Cierra el panel en mobile al limpiar
     });
     els.emptyReset?.addEventListener("click", () => {
       clearSidebarFilters();
@@ -930,8 +998,10 @@ async function boot() {
       state.currentPage = 1;
       apply();
     });
+
     // ── Category nav
     document.addEventListener("click", handleNavCategoryClick);
+
     // ── Pagination
     els.pagination?.addEventListener("click", (e) => {
       const btn = e.target.closest("[data-page]");
@@ -942,6 +1012,7 @@ async function boot() {
       apply();
       scrollToResults();
     });
+
     // ── Fly to cart
     document.addEventListener("fly-to-cart", (e) => {
       flyToCart(e.detail.sourceEl);
@@ -956,4 +1027,5 @@ async function boot() {
     }
   }
 }
+
 boot();

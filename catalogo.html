@@ -22,7 +22,6 @@
     <div class="cursor-glow" id="cursorGlow"></div>
     <div class="noise-overlay" aria-hidden="true"></div>
 
-    <!-- ═══════════════ HEADER ══ -->
     <header class="header" id="mainHeader">
       <div class="header__main">
         <a href="./index.html" class="brand" aria-label="Ir al inicio">
@@ -153,10 +152,13 @@
       </nav>
     </header>
 
-    <!-- ═══════════════ MAIN ══ -->
     <main>
       <section id="resultsSection" class="catalog">
+        <div class="mobile-filters-overlay" id="mobileFiltersOverlay"></div>
+
         <aside id="catalogSidebar" class="catalog__sidebar">
+          <div class="mobile-filters-sheet__handle"></div>
+
           <div class="filters-box">
             <div class="filters-box__header">
               <h3 class="filters-box__title">
@@ -176,23 +178,36 @@
                 </svg>
                 Filtros
               </h3>
-              <button id="clearFiltersBtn" class="filters-box__clear">
-                <svg
-                  width="12"
-                  height="12"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  stroke-width="2.5"
+
+              <div
+                class="filters-box__actions"
+                style="display: flex; gap: 8px; align-items: center"
+              >
+                <button id="clearFiltersBtn" class="filters-box__clear">
+                  <svg
+                    width="12"
+                    height="12"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                  Limpiar
+                </button>
+                <button
+                  id="closeFiltersBtn"
+                  class="mobile-filters-close"
+                  aria-label="Cerrar filtros"
                 >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-                Limpiar
-              </button>
+                  ✕
+                </button>
+              </div>
             </div>
 
             <div class="filter-group">
@@ -291,6 +306,12 @@
               </div>
             </div>
           </div>
+
+          <div class="mobile-filters-footer">
+            <button id="applyFiltersBtn" class="mobile-filters-apply">
+              Ver Resultados
+            </button>
+          </div>
         </aside>
 
         <div class="catalog__content">
@@ -300,6 +321,23 @@
               <span id="resultsCount" class="results__count"
                 >Cargando catálogo…</span
               >
+              <button class="mobile-filters-btn" id="mobileFiltersBtn">
+                <svg
+                  width="16"
+                  height="16"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"
+                  />
+                </svg>
+                Filtros
+              </button>
             </div>
 
             <div class="results__bar-right">
@@ -414,7 +452,6 @@
       </section>
     </main>
 
-    <!-- ═══════════════ CART DRAWER ══ -->
     <aside id="cartDrawer" class="drawer" aria-hidden="true">
       <div class="drawer__overlay" id="cartOverlay"></div>
       <div
@@ -502,7 +539,6 @@
 
     <div class="fly-item" id="flyItem" aria-hidden="true"></div>
 
-    <!-- ═══════════════ FOOTER ══ -->
     <footer class="footer">
       <div class="footer__glow" aria-hidden="true"></div>
 

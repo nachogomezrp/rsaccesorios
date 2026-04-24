@@ -707,7 +707,7 @@ main {
 @media (max-width: 768px) {
   .header__main {
     position: relative;
-    gap: 8px; /* Reducimos el gap para que todo entre mejor */
+    gap: 8px;
     padding: 0 var(--space-3);
     height: 64px;
     justify-content: space-between;
@@ -716,7 +716,6 @@ main {
     box-sizing: border-box;
   }
 
-  /* Logo: Ocultamos el texto y dejamos solo el isotipo para ganar espacio valioso */
   .brand {
     position: relative;
     left: auto;
@@ -724,7 +723,7 @@ main {
     gap: 0;
     z-index: 2;
     order: 1;
-    flex-shrink: 0; /* Evita que el logo se deforme o achique */
+    flex-shrink: 0;
   }
   .brand:hover {
     transform: none;
@@ -738,11 +737,10 @@ main {
     display: none;
   }
 
-  /* Buscador: Le damos flex 1 pero obligamos a que se achique */
   .searchbar {
     display: block;
     flex: 1 1 0%;
-    min-width: 0; /* ¡Esta es la magia que evita que rompa el ancho de la pantalla! */
+    min-width: 0;
     order: 2;
     margin: 0;
   }
@@ -754,16 +752,15 @@ main {
     height: 32px;
   }
   .searchbar__input {
-    font-size: 13px; /* Apenas más chico para que se lea mejor el placeholder */
+    font-size: 13px;
   }
 
-  /* Contenedor de botones (Carrito + Hamburguesa) */
   .header__actions {
     width: auto;
     justify-content: flex-end;
     gap: 6px;
     order: 3;
-    flex-shrink: 0; /* Evita que los botones se aplasten */
+    flex-shrink: 0;
   }
 
   .mobile-menu-btn {
@@ -783,7 +780,6 @@ main {
     display: none;
   }
 
-  /* El nav que se despliega (se mantiene igual) */
   .nav {
     display: none;
   }
@@ -2542,16 +2538,183 @@ main {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE — 900px
+   ELEMENTOS OCULTOS EN ESCRITORIO
+   ═══════════════════════════════════════════════════════════════ */
+.mobile-filters-btn,
+.mobile-filters-close,
+.mobile-filters-overlay,
+.mobile-filters-sheet__handle {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE — 900px (Lógica Bottom Sheet Integrada)
    ═══════════════════════════════════════════════════════════════ */
 @media (max-width: 900px) {
+  /* Forzamos a 1 columna el catálogo */
   .catalog {
     grid-template-columns: 1fr;
   }
-  .catalog__sidebar {
-    position: static;
-    top: auto;
+
+  /* Botón disparador visible */
+  .mobile-filters-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text);
+    margin-left: auto;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all var(--duration-fast) var(--ease-out);
   }
+  .mobile-filters-btn:hover {
+    background: var(--color-accent-light);
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    transform: translateY(-1px);
+  }
+  .mobile-filters-btn:active {
+    transform: scale(0.97);
+  }
+
+  /* Overlay del bottom sheet */
+  .mobile-filters-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+  .mobile-filters-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Transformamos el sidebar original en un panel deslizante */
+  .catalog__sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: var(--color-surface);
+    border-radius: 24px 24px 0 0;
+    /* Sacamos el padding bottom porque ahora lo tiene el footer */
+    padding: 0;
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    max-height: 85vh;
+    box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.15);
+  }
+  .catalog__sidebar.is-open {
+    transform: translateY(0);
+  }
+
+  /* Rayita indicadora de arrastre */
+  .mobile-filters-sheet__handle {
+    display: block;
+    width: 40px;
+    height: 4px;
+    background: var(--color-border-strong);
+    border-radius: 10px;
+    margin: 16px auto 8px;
+    flex-shrink: 0;
+  }
+
+  /* Ajustamos el contenedor: más separación (gap) y ocupa el espacio libre (flex:1) */
+  .filters-box {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    overflow-y: auto;
+    flex: 1; /* Ocupa todo el espacio intermedio */
+    padding: 0 var(--space-5) var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6); /* Esto separa cada selector para que respiren */
+  }
+
+  /* Anulamos el borde de PC para que el gap controle la separación visual */
+  .filter-group + .filter-group {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  /* Botón X de cierre */
+  .mobile-filters-close {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: var(--color-surface-2);
+    border: none;
+    font-size: 16px;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+  .mobile-filters-close:hover {
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    transform: rotate(90deg);
+  }
+
+  /* NUEVO: Footer y botón Aplicar */
+  .mobile-filters-footer {
+    padding: 16px 24px 24px;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border-subtle);
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+    flex-shrink: 0; /* Para que quede anclado abajo */
+  }
+  .mobile-filters-apply {
+    width: 100%;
+    padding: 14px;
+    border-radius: var(--radius-full);
+    background: var(--gradient-brand);
+    color: #fff;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
+    border: none;
+    box-shadow: var(--shadow-brand);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  .mobile-filters-apply:active {
+    transform: scale(0.98);
+  }
+  .mobile-filters-close:hover {
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    transform: rotate(90deg);
+  }
+
+  /* Bloquear el scroll del fondo */
+  body.no-scroll {
+    overflow: hidden;
+  }
+
+  /* Product details en pantallas medianas */
   .product-detail {
     grid-template-columns: 1fr;
     gap: var(--space-8);
@@ -2712,6 +2875,7 @@ main {
     display: none;
   }
 }
+
 .fuzzy-banner {
   grid-column: 1 / -1;
   padding: 0.6rem 1rem;
