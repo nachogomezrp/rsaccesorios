@@ -3,7 +3,7 @@
  */
 
 const SHEET_CSV_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vSRJ2O79G-uKQF1O7oKz-5g6sSvW1lnggUNOoiwtn6XWdNInaomFkrgDNMzEjWC0A/pub?gid=847739532&single=true&output=csv";
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWnJSvkfZsCyvH87yDY2P2JXUDUK8CmlIc2f93ptw5zSJYMoKhq4pdFBhUdPnVdw/pub?gid=847739532&single=true&output=csv";
 
 // CORRECCIÓN: exportada para poder importarla en main.js y evitar duplicación
 export function normalizeText(value) {

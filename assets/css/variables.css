@@ -1,126 +1,201 @@
 /* ═══════════════════════════════════════════════════════════════
-   RS ACCESORIOS — Design Tokens & Variables
+   LOS DEL SUR — Design Tokens & Variables
+   Paleta: Blanco base · Rojo acento · Azul eléctrico + Navy · Negro
    ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  /* ── Brand Palette ─────────────────────────────────────────── */
+  /* ── Brand Palette — Rojo ──────────────────────────────────── */
   --brand-50: #fff1f1;
-  --brand-100: #ffe0e0;
-  --brand-200: #ffc5c5;
-  --brand-300: #ff9d9d;
-  --brand-400: #ff6464;
-  --brand-500: #f83232;
-  --brand-600: #e01010;
-  --brand-700: #ca1b18;
-  --brand-800: #a51714;
-  --brand-900: #881a18;
-  --brand-950: #4b0808;
+  --brand-100: #ffd9d9;
+  --brand-200: #ffb0b0;
+  --brand-300: #ff7a7a;
+  --brand-400: #ff4040;
+  --brand-500: #e81c1c;
+  --brand-600: #cc0f0f;
+  --brand-700: #aa0a0a;
+  --brand-800: #880808;
+  --brand-900: #660606;
+  --brand-950: #3a0202;
+
+  /* ── Blue Palette — Azul Eléctrico (acentos, CTAs, links) ─── */
+  --blue-50: #e8f0fd;
+  --blue-100: #c5d8fb;
+  --blue-200: #93b8f7;
+  --blue-300: #5a92f2;
+  --blue-400: #2d6eea;
+  --blue-500: #1a5fd4; /* azul del logo */
+  --blue-600: #154fb8;
+  --blue-700: #103e96;
+  --blue-800: #0c2e72;
+  --blue-900: #081f50;
+
+  /* ── Navy Palette — Azul Oscuro (headers, footers, dark bg) ── */
+  --navy-50: #e6eaf2;
+  --navy-100: #c0c9df;
+  --navy-200: #8fa0c4;
+  --navy-300: #5a72a6;
+  --navy-400: #2f4d8a;
+  --navy-500: #1a3270;
+  --navy-600: #142860; /* navy principal */
+  --navy-700: #0f2050;
+  --navy-800: #0a163a;
+  --navy-900: #050c22;
+  --navy-950: #02060f;
 
   /* ── Neutral Palette ───────────────────────────────────────── */
   --neutral-0: #ffffff;
-  --neutral-50: #f9f9fb;
-  --neutral-100: #f3f3f6;
-  --neutral-150: #ebebef;
-  --neutral-200: #e0e0e6;
-  --neutral-300: #c8c8d2;
-  --neutral-400: #a0a0ae;
-  --neutral-500: #737382;
-  --neutral-600: #565664;
-  --neutral-700: #3e3e4c;
-  --neutral-800: #28282e;
-  --neutral-850: #1e1e24;
-  --neutral-900: #14141a;
-  --neutral-950: #0a0a0e;
+  --neutral-50: #f8f9fc;
+  --neutral-100: #f0f2f7;
+  --neutral-150: #e6e9f2;
+  --neutral-200: #d8dce8;
+  --neutral-300: #b8bdd0;
+  --neutral-400: #8a90aa;
+  --neutral-500: #606678;
+  --neutral-600: #464c60;
+  --neutral-700: #30364a;
+  --neutral-800: #1e2234;
+  --neutral-850: #151928;
+  --neutral-900: #0e1020;
+  --neutral-950: #07080f;
 
   /* ── Semantic Colors ───────────────────────────────────────── */
+
+  /* Fondos */
   --color-bg: var(--neutral-50);
   --color-surface: var(--neutral-0);
   --color-surface-2: var(--neutral-100);
   --color-surface-3: var(--neutral-150);
-  --color-surface-glass: rgba(255, 255, 255, 0.72);
-  --color-surface-dark: var(--neutral-900);
+  --color-surface-glass: rgba(255, 255, 255, 0.8);
+  --color-surface-dark: var(--navy-800);
 
+  /* Bordes */
   --color-border: var(--neutral-200);
   --color-border-subtle: var(--neutral-150);
   --color-border-strong: var(--neutral-300);
 
+  /* Texto */
   --color-text: var(--neutral-900);
   --color-text-secondary: var(--neutral-600);
   --color-text-muted: var(--neutral-400);
   --color-text-inverse: var(--neutral-0);
 
-  --color-accent: var(--brand-700);
-  --color-accent-hover: var(--brand-800);
+  /* Acento primario — Rojo */
+  --color-accent: var(--brand-600);
+  --color-accent-hover: var(--brand-700);
   --color-accent-light: var(--brand-50);
   --color-accent-mid: var(--brand-100);
 
-  --color-brand: var(--brand-700);
-  --color-brand-hover: var(--brand-800);
+  /* Acento secundario — Azul eléctrico */
+  --color-blue: var(--blue-500);
+  --color-blue-hover: var(--blue-600);
+  --color-blue-light: var(--blue-50);
+  --color-blue-mid: var(--blue-100);
 
+  /* Brand (mantiene compatibilidad con clases existentes) */
+  --color-brand: var(--brand-600);
+  --color-brand-hover: var(--brand-700);
+
+  /* Navy — fondos oscuros, header, footer */
+  --color-navy: var(--navy-600);
+  --color-navy-deep: var(--navy-800);
+  --color-navy-light: var(--navy-50);
+
+  /* Estados */
   --color-success: #16a34a;
   --color-warning: #d97706;
-  --color-danger: #dc2626;
+  --color-danger: var(--brand-600);
 
   /* ── Gradients ─────────────────────────────────────────────── */
+
+  /* Rojo — botones primarios, badges destacados */
   --gradient-brand: linear-gradient(
     135deg,
-    var(--brand-600) 0%,
-    var(--brand-800) 100%
+    var(--brand-500) 0%,
+    var(--brand-700) 100%
   );
 
   --gradient-brand-vivid: linear-gradient(
     135deg,
-    #ff3a3a 0%,
-    var(--brand-700) 50%,
+    #ff3030 0%,
+    var(--brand-600) 50%,
     var(--brand-900) 100%
   );
 
+  /* Azul eléctrico — CTAs secundarios, chips */
+  --gradient-blue: linear-gradient(
+    135deg,
+    var(--blue-400) 0%,
+    var(--blue-700) 100%
+  );
+
+  /* Navy — header, footer, secciones oscuras */
+  --gradient-navy: linear-gradient(
+    135deg,
+    var(--navy-600) 0%,
+    var(--navy-900) 100%
+  );
+
+  /* Hero: bandera diagonal rojo | azul sobre negro */
+  --gradient-hero: linear-gradient(
+    110deg,
+    var(--navy-900) 0%,
+    var(--navy-700) 35%,
+    var(--blue-700) 55%,
+    var(--brand-700) 78%,
+    var(--brand-900) 100%
+  );
+
+  --gradient-hero-overlay: linear-gradient(
+    105deg,
+    rgba(5, 8, 22, 0.88) 0%,
+    rgba(5, 8, 22, 0.55) 50%,
+    rgba(5, 8, 22, 0.18) 100%
+  );
+
+  /* Fondos claros */
   --gradient-surface: linear-gradient(
     180deg,
     var(--neutral-0) 0%,
     var(--neutral-50) 100%
   );
 
+  /* Sección oscura alternativa */
   --gradient-dark: linear-gradient(
     135deg,
-    var(--neutral-900) 0%,
-    var(--neutral-850) 100%
+    var(--navy-800) 0%,
+    var(--navy-950) 100%
   );
 
-  --gradient-hero-overlay: linear-gradient(
-    105deg,
-    rgba(10, 10, 14, 0.82) 0%,
-    rgba(10, 10, 14, 0.55) 50%,
-    rgba(10, 10, 14, 0.18) 100%
-  );
-
+  /* Card shine */
   --gradient-card-shine: linear-gradient(
     135deg,
-    rgba(255, 255, 255, 0.12) 0%,
-    rgba(255, 255, 255, 0.04) 50%,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
     transparent 100%
   );
 
+  /* Footer */
   --gradient-footer: linear-gradient(
     180deg,
-    var(--neutral-950) 0%,
-    #0d0d12 100%
+    var(--navy-900) 0%,
+    var(--navy-950) 100%
   );
 
+  /* Mesh ambiental — mezcla rojo + azul */
   --gradient-mesh:
     radial-gradient(
-      ellipse at 20% 50%,
-      rgba(202, 27, 24, 0.08) 0%,
+      ellipse at 15% 50%,
+      rgba(204, 15, 15, 0.07) 0%,
       transparent 60%
     ),
     radial-gradient(
       ellipse at 80% 20%,
-      rgba(202, 27, 24, 0.05) 0%,
-      transparent 50%
+      rgba(26, 95, 212, 0.06) 0%,
+      transparent 55%
     ),
     radial-gradient(
-      ellipse at 60% 80%,
-      rgba(80, 0, 0, 0.06) 0%,
+      ellipse at 55% 85%,
+      rgba(10, 22, 58, 0.08) 0%,
       transparent 50%
     );
 
@@ -205,11 +280,23 @@
 
   --shadow-2xl: 0 40px 96px rgba(0, 0, 0, 0.2), 0 12px 32px rgba(0, 0, 0, 0.1);
 
+  /* Sombra rojo — botones primarios, hover cards */
   --shadow-brand:
-    0 8px 32px rgba(202, 27, 24, 0.3), 0 2px 8px rgba(202, 27, 24, 0.18);
+    0 8px 32px rgba(204, 15, 15, 0.3), 0 2px 8px rgba(204, 15, 15, 0.18);
 
   --shadow-brand-lg:
-    0 16px 48px rgba(202, 27, 24, 0.38), 0 4px 16px rgba(202, 27, 24, 0.22);
+    0 16px 48px rgba(204, 15, 15, 0.36), 0 4px 16px rgba(204, 15, 15, 0.22);
+
+  /* Sombra azul — elementos secundarios destacados */
+  --shadow-blue:
+    0 8px 28px rgba(26, 95, 212, 0.28), 0 2px 8px rgba(26, 95, 212, 0.16);
+
+  --shadow-blue-lg:
+    0 16px 44px rgba(26, 95, 212, 0.34), 0 4px 14px rgba(26, 95, 212, 0.2);
+
+  /* Sombra navy — header, footer, overlays oscuros */
+  --shadow-navy:
+    0 8px 32px rgba(10, 22, 58, 0.28), 0 2px 8px rgba(10, 22, 58, 0.18);
 
   --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.08);
 
@@ -218,8 +305,8 @@
     0 0 0 1px rgba(0, 0, 0, 0.04);
 
   --shadow-card-hover:
-    0 4px 8px rgba(0, 0, 0, 0.04), 0 20px 48px rgba(0, 0, 0, 0.12),
-    0 0 0 1px rgba(202, 27, 24, 0.1);
+    0 4px 8px rgba(0, 0, 0, 0.04), 0 20px 48px rgba(0, 0, 0, 0.11),
+    0 0 0 1px rgba(26, 95, 212, 0.14);
 
   /* ── Transitions ───────────────────────────────────────────── */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
