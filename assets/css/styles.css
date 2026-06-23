@@ -724,7 +724,7 @@ main {
     position: relative;
     gap: 8px;
     padding: 0 var(--space-3);
-    height: 64px;
+    height: 100px;
     justify-content: space-between;
     align-items: center;
     width: 100%;
@@ -744,8 +744,8 @@ main {
     transform: none;
   }
   .brand__logo-wrap {
-    width: 36px;
-    height: 36px;
+    width: 150px;
+    height: 150px;
   }
   .brand__name,
   .brand__tagline {

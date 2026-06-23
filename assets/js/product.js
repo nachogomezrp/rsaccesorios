@@ -805,6 +805,24 @@ function initNavIndicator() {
     }),
   );
 }
+// ─── Searchbar en Producto ────────────────────────────────────────
+(function initProductSearch() {
+  const searchBtn = document.getElementById("searchBtn");
+  const searchInput = document.getElementById("q");
+
+  function executeSearch() {
+    const q = String(searchInput?.value ?? "").trim();
+    if (q) {
+      // Redirige al catálogo pasándole la búsqueda por la URL
+      window.location.href = `./catalogo.html?q=${encodeURIComponent(q)}`;
+    }
+  }
+
+  searchBtn?.addEventListener("click", executeSearch);
+  searchInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") executeSearch();
+  });
+})();
 // ─── Boot ─────────────────────────────────────────────────────────
 async function boot() {
   try {
