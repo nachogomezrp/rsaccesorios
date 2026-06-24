@@ -1,11 +1,12 @@
 /**
- * @file Data fetching and parsing layer.
+ * @file data.js
+ * Capa de obtención y parseo de datos (Google Sheets a JSON).
  */
 
 const SHEET_CSV_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vQWnJSvkfZsCyvH87yDY2P2JXUDUK8CmlIc2f93ptw5zSJYMoKhq4pdFBhUdPnVdw/pub?gid=847739532&single=true&output=csv";
+const CACHE_KEY = "lds_products_cache";
 
-// CORRECCIÓN: exportada para poder importarla en main.js y evitar duplicación
 export function normalizeText(value) {
   return String(value ?? "")
     .toLowerCase()
@@ -18,10 +19,13 @@ function parseYears(description) {
   const text = String(description ?? "");
   const m = text.match(/(19\d{2}|20\d{2})\s*-\s*(19\d{2}|20\d{2})/);
   if (m) return { from: Number(m[1]), to: Number(m[2]) };
+
   const m2 = text.match(/(19\d{2}|20\d{2})\s*-\s*$/);
   if (m2) return { from: Number(m2[1]), to: null };
+
   const m3 = text.match(/\b(19\d{2}|20\d{2})\b/);
   if (m3) return { from: Number(m3[1]), to: Number(m3[1]) };
+
   return { from: null, to: null };
 }
 
@@ -35,9 +39,11 @@ function parseCSVLine(line) {
   const result = [];
   let current = "";
   let inQuotes = false;
+
   for (let i = 0; i < line.length; i++) {
     const char = line[i];
     const next = line[i + 1];
+
     if (char === '"') {
       if (inQuotes && next === '"') {
         current += '"';
@@ -66,11 +72,13 @@ function parseImages(value) {
 function parsePrice(value) {
   const text = String(value ?? "").trim();
   if (!text) return 0;
+
   const normalized = text
     .replace(/\s/g, "")
     .replace(/\.(?=\d{3}(\D|$))/g, "")
     .replace(/,(?=\d{3}(\D|$))/g, "")
     .replace(",", ".");
+
   const num = Number(normalized);
   return Number.isFinite(num) ? num : 0;
 }
@@ -80,6 +88,7 @@ function csvToProducts(csvText) {
     .replace(/\r/g, "")
     .split("\n")
     .filter((line) => line.trim() !== "");
+
   if (!lines.length) return [];
 
   const headers = parseCSVLine(lines[0]).map((h) => h.trim().toLowerCase());
@@ -147,10 +156,27 @@ function csvToProducts(csvText) {
 }
 
 export async function loadProducts() {
+  // 1. Verificamos si los productos ya están en caché de sesión
+  const cachedData = sessionStorage.getItem(CACHE_KEY);
+  if (cachedData) {
+    try {
+      return JSON.parse(cachedData);
+    } catch (e) {
+      console.warn("Caché corrupta, recargando desde la fuente...");
+    }
+  }
+
+  // 2. Si no están en caché, solicitamos el CSV
   const res = await fetch(SHEET_CSV_URL, { cache: "no-store" });
   if (!res.ok) {
-    throw new Error(`No se pudo cargar Google Sheets (${res.status})`);
+    throw new Error(`No se pudo cargar la base de datos (${res.status})`);
   }
+
   const csvText = await res.text();
-  return csvToProducts(csvText);
+  const products = csvToProducts(csvText);
+
+  // 3. Guardamos los datos en la caché para las próximas páginas
+  sessionStorage.setItem(CACHE_KEY, JSON.stringify(products));
+
+  return products;
 }
